@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Bildirishnomalar" %}{% endblock %}
+
+{% block page_title %}{% trans "Bildirishnomalar" %}{% endblock %}
+
+{% block content %}
+
+<div class="notifications-page">
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="card-title">{% trans "Barcha bildirishnomalar" %}</h3>
+            {% if notifications %}
+            <a href="{% url 'notifications:mark_all_as_read' %}" class="btn btn-secondary btn-sm">
+                ✓ {% trans "Barchasini o'qilgan qilish" %}
+            </a>
+            {% endif %}
+        </div>
+        
+        {% if notifications %}
+        <div class="notifications-list-page">
+            {% for notif in notifications %}
+            <div class="notification-item-page {% if not notif.is_read %}unread{% endif %}" 
+                 onclick="window.location='{% url 'notifications:mark_as_read' notif.pk %}'">
+                <div class="notification-indicator">
+                    {% if not notif.is_read %}
+                        <span class="unread-dot"></span>
+                    {% endif %}
+                </div>
+                <div class="notification-content-page">
+                    <div class="notification-header-page">
+                        <span class="notification-type">{{ notif.get_notification_type_display }}</span>
+                        <span class="notification-time">{{ notif.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <h4 class="notification-title-page">{{ notif.title }}</h4>
+                    <p class="notification-text-page">{{ notif.text }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🔔</div>
+            <h3>{% trans "Bildirishnomalar yo'q" %}</h3>
+            <p>{% trans "Sizda hali bildirishnomalar mavjud emas" %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.notifications-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.notifications-list-page {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item-page {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.notification-item-page:hover {
+    background: var(--bg-tertiary);
+}
+
+.notification-item-page:last-child {
+    border-bottom: none;
+}
+
+.notification-item-page.unread {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.notification-indicator {
+    padding-top: 5px;
+}
+
+.unread-dot {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+}
+
+.notification-content-page {
+    flex: 1;
+}
+
+.notification-header-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.notification-type {
+    font-size: 12px;
+    color: var(--accent-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.notification-title-page {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.notification-text-page {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+</style>
+{% endblock %}

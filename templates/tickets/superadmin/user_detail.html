@@ -1,0 +1,571 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ user_obj.get_full_name }}{% endblock %}
+
+{% block page_title %}{{ user_obj.get_full_name }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb-nav">
+    <a href="{% url 'tickets:superadmin_dashboard' %}">{% trans "Bosh Admin" %}</a>
+    <span class="breadcrumb-separator">›</span>
+    <a href="{% url 'tickets:superadmin_users_list' %}">{% trans "Foydalanuvchilar" %}</a>
+    <span class="breadcrumb-separator">›</span>
+    <span>{{ user_obj.get_full_name }}</span>
+</div>
+
+<!-- Back Button -->
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'tickets:superadmin_users_list' %}" class="btn btn-secondary">
+        ← {% trans "Orqaga" %}
+    </a>
+</div>
+
+<div class="grid-layout">
+    <!-- Left Column - User Info -->
+    <div class="left-column">
+        <!-- Profile Card -->
+        <div class="card profile-card">
+            <div class="profile-avatar">
+                {% if user_obj.photo %}
+                    <img src="{{ user_obj.photo.url }}" alt="{{ user_obj.get_full_name }}">
+                {% else %}
+                    <div class="avatar-placeholder-large">
+                        {{ user_obj.first_name|first }}{{ user_obj.last_name|first }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <h2 class="profile-name">{{ user_obj.get_full_name }}</h2>
+            <p class="profile-username">@{{ user_obj.username }}</p>
+
+            <!-- Role Badge -->
+            {% if user_obj.role == 'superadmin' %}
+                <span class="badge badge-danger" style="margin-bottom: 15px;">
+                    🛡️ {{ user_obj.get_role_display }}
+                </span>
+            {% elif user_obj.role == 'admin' %}
+                <span class="badge badge-primary" style="margin-bottom: 15px;">
+                    🛡️ {{ user_obj.get_role_display }}
+                </span>
+            {% elif user_obj.role == 'technician' %}
+                <span class="badge badge-success" style="margin-bottom: 15px;">
+                    🔧 {{ user_obj.get_role_display }}
+                </span>
+            {% else %}
+                <span class="badge" style="background: rgba(107, 114, 128, 0.15); color: #6b7280; margin-bottom: 15px;">
+                    👤 {{ user_obj.get_role_display }}
+                </span>
+            {% endif %}
+
+            <!-- Status -->
+            {% if user_obj.is_active %}
+                <span class="badge badge-success" style="margin-bottom: 20px;">
+                    ✓ {% trans "Faol" %}
+                </span>
+            {% else %}
+                <span class="badge badge-danger" style="margin-bottom: 20px;">
+                    ✕ {% trans "Bloklangan" %}
+                </span>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="action-buttons-vertical">
+                <!-- Change Role -->
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('roleModal').style.display='block'">
+                    🔄 {% trans "Rolni o'zgartirish" %}
+                </button>
+
+                <!-- Reset Password -->
+                <a href="{% url 'tickets:superadmin_reset_password' user_obj.id %}" class="btn btn-warning">
+                    🔑 {% trans "Parolni o'zgartirish" %}
+                </a>
+
+                <!-- Generate Temp Password -->
+                <a href="{% url 'tickets:superadmin_generate_temp_password' user_obj.id %}" 
+                   class="btn btn-info"
+                   onclick="return confirm('{% trans "Vaqtinchalik parol yaratilsinmi?" %}')">
+                    🎲 {% trans "Vaqtinchalik parol" %}
+                </a>
+
+                <!-- Toggle Status -->
+                {% if user_obj != request.user %}
+                <a href="{% url 'tickets:superadmin_toggle_status' user_obj.id %}" 
+                   class="btn {% if user_obj.is_active %}btn-danger{% else %}btn-success{% endif %}"
+                   onclick="return confirm('{% trans "Ishonchingiz komilmi?" %}')">
+                    🛡️ {% if user_obj.is_active %}{% trans "Bloklash" %}{% else %}{% trans "Aktivlashtirish" %}{% endif %}
+                </a>
+                {% endif %}
+
+                <!-- Delete User -->
+                {% if user_obj != request.user %}
+                <a href="{% url 'tickets:superadmin_delete_user' user_obj.id %}" class="btn btn-danger">
+                    🗑️ {% trans "O'chirish" %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Personal Info -->
+        <div class="card">
+            <h3 class="card-title">{% trans "Shaxsiy ma'lumotlar" %}</h3>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="info-label">{% trans "Username" %}:</span>
+                    <span class="info-value">{{ user_obj.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{% trans "Viloyat" %}:</span>
+                    <span class="info-value">
+                        {% if user_obj.region %}
+                            {{ user_obj.region.name }}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{% trans "Telefon" %}:</span>
+                    <span class="info-value">
+                        {% if user_obj.phone_number %}
+                            {{ user_obj.phone_number }}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{% trans "Ro'yxatdan o'tgan" %}:</span>
+                    <span class="info-value">{{ user_obj.date_joined|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{% trans "Oxirgi kirish" %}:</span>
+                    <span class="info-value">
+                        {% if user_obj.last_login %}
+                            {{ user_obj.last_login|timesince }} {% trans "oldin" %}
+                        {% else %}
+                            <span class="text-muted">{% trans "Hech qachon" %}</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Stats & Activity -->
+    <div class="right-column">
+        <!-- Stats Cards -->
+        <div class="stats-grid-4">
+            <div class="stat-card-mini">
+                <div class="stat-icon-mini" style="color: #3b82f6;">📋</div>
+                <div>
+                    <div class="stat-value-mini">{{ stats.tickets_created_total }}</div>
+                    <div class="stat-label-mini">{% trans "Yaratgan" %}</div>
+                </div>
+            </div>
+            <div class="stat-card-mini">
+                <div class="stat-icon-mini" style="color: #10b981;">✓</div>
+                <div>
+                    <div class="stat-value-mini">{{ stats.tickets_created_resolved }}</div>
+                    <div class="stat-label-mini">{% trans "Hal qilingan" %}</div>
+                </div>
+            </div>
+            <div class="stat-card-mini">
+                <div class="stat-icon-mini" style="color: #06b6d4;">👤</div>
+                <div>
+                    <div class="stat-value-mini">{{ stats.tickets_assigned_total }}</div>
+                    <div class="stat-label-mini">{% trans "Mas'ul" %}</div>
+                </div>
+            </div>
+            <div class="stat-card-mini">
+                <div class="stat-icon-mini" style="color: #f59e0b;">⭐</div>
+                <div>
+                    <div class="stat-value-mini">{{ stats.avg_rating|floatformat:1 }}</div>
+                    <div class="stat-label-mini">{% trans "Baho" %}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Responsible Systems -->
+        {% if responsible_systems %}
+        <div class="card">
+            <h3 class="card-title">{% trans "Mas'ul tizimlar" %}</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Tizim" %}</th>
+                            <th>{% trans "Viloyat" %}</th>
+                            <th>{% trans "Rol" %}</th>
+                            <th>{% trans "Default" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resp in responsible_systems %}
+                        <tr>
+                            <td>{{ resp.system.name }}</td>
+                            <td>
+                                {% if resp.region %}
+                                    {{ resp.region.name }}
+                                {% else %}
+                                    <span class="badge badge-primary">{% trans "Respublika" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if resp.role_in_system == 'admin' %}badge-primary{% else %}badge-success{% endif %}">
+                                    {{ resp.get_role_in_system_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if resp.is_default %}
+                                    <span style="color: #10b981;">✓</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Tickets -->
+        <div class="card">
+            <h3 class="card-title">{% trans "Oxirgi murojaatlar" %}</h3>
+            <div class="list-group">
+                {% for ticket in recent_tickets %}
+                <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="list-item">
+                    <div class="list-item-content">
+                        <div class="list-item-title">{{ ticket.title }}</div>
+                        <small class="text-muted">
+                            {{ ticket.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                    <span class="badge badge-{{ ticket.status }}">
+                        {{ ticket.get_status_display }}
+                    </span>
+                </a>
+                {% empty %}
+                <div class="text-center text-muted" style="padding: 20px;">{% trans "Murojaatlar yo'q" %}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="card">
+            <h3 class="card-title">{% trans "Oxirgi xabarlar" %}</h3>
+            <div class="list-group">
+                {% for msg in recent_messages %}
+                <a href="{% url 'tickets:ticket_detail' msg.ticket.pk %}" class="list-item">
+                    <div class="list-item-content">
+                        <p style="margin: 0 0 5px 0;">{{ msg.message|truncatewords:15 }}</p>
+                        <small class="text-muted">
+                            {{ msg.created_at|timesince }} {% trans "oldin" %}
+                        </small>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="text-center text-muted" style="padding: 20px;">{% trans "Xabarlar yo'q" %}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Role Modal -->
+<div id="roleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>{% trans "Rolni o'zgartirish" %}</h3>
+            <button class="modal-close" onclick="document.getElementById('roleModal').style.display='none'">×</button>
+        </div>
+        <form method="post" action="{% url 'tickets:superadmin_change_role' user_obj.id %}">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">{% trans "Yangi rol" %}</label>
+                    <select name="role" class="form-select" required>
+                        <option value="user" {% if user_obj.role == 'user' %}selected{% endif %}>
+                            {% trans "Foydalanuvchi" %}
+                        </option>
+                        <option value="technician" {% if user_obj.role == 'technician' %}selected{% endif %}>
+                            {% trans "Texnik" %}
+                        </option>
+                        <option value="admin" {% if user_obj.role == 'admin' %}selected{% endif %}>
+                            {% trans "Admin" %}
+                        </option>
+                        <option value="superadmin" {% if user_obj.role == 'superadmin' %}selected{% endif %}>
+                            {% trans "Bosh Admin" %}
+                        </option>
+                    </select>
+                </div>
+                <div class="alert alert-warning">
+                    ⚠️ {% trans "Rol o'zgartirilgandan so'ng foydalanuvchining huquqlari o'zgaradi!" %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('roleModal').style.display='none'">
+                    {% trans "Bekor qilish" %}
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    {% trans "Saqlash" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.breadcrumb-nav a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.breadcrumb-nav a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    color: var(--text-muted);
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+}
+
+.left-column,
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.profile-avatar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.profile-avatar img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 48px;
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.profile-username {
+    color: var(--text-muted);
+    margin-bottom: 15px;
+}
+
+.action-buttons-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.info-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 10px;
+}
+
+.info-label {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+.stats-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.stat-card-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.stat-icon-mini {
+    font-size: 24px;
+}
+
+.stat-value-mini {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label-mini {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.list-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.list-item-content {
+    flex: 1;
+}
+
+.list-item-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    margin: 10% auto;
+    max-width: 500px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Badge colors based on status */
+.badge-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.badge-in_progress { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.badge-resolved { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badge-closed { background: rgba(107, 114, 128, 0.15); color: #6b7280; }
+
+@media (max-width: 1200px) {
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

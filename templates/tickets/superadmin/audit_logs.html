@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Audit Loglar" %}{% endblock %}
+
+{% block page_title %}{% trans "Audit Loglar" %}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <p class="text-muted" style="margin: 0;">{% trans "Tizimda amalga oshirilgan barcha harakatlar tarixi" %}</p>
+    </div>
+    <a href="{% url 'tickets:superadmin_dashboard' %}" class="btn btn-secondary">
+        ← {% trans "Orqaga" %}
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 30px;">
+    <form method="get" class="filter-form">
+        <div class="filter-grid-3">
+            <!-- Action Type Filter -->
+            <div class="form-group">
+                <label class="form-label">{% trans "Harakat turi" %}</label>
+                <select name="action_type" class="form-select">
+                    <option value="">{% trans "Barchasi" %}</option>
+                    <option value="created" {% if action_type == 'created' %}selected{% endif %}>
+                        {% trans "Yaratildi" %}
+                    </option>
+                    <option value="status_changed" {% if action_type == 'status_changed' %}selected{% endif %}>
+                        {% trans "Status o'zgartirildi" %}
+                    </option>
+                    <option value="assigned" {% if action_type == 'assigned' %}selected{% endif %}>
+                        {% trans "Biriktirildi" %}
+                    </option>
+                    <option value="message_sent" {% if action_type == 'message_sent' %}selected{% endif %}>
+                        {% trans "Xabar yuborildi" %}
+                    </option>
+                    <option value="reopened" {% if action_type == 'reopened' %}selected{% endif %}>
+                        {% trans "Qayta ochildi" %}
+                    </option>
+                    <option value="rated" {% if action_type == 'rated' %}selected{% endif %}>
+                        {% trans "Baholandi" %}
+                    </option>
+                    <option value="admin_action" {% if action_type == 'admin_action' %}selected{% endif %}>
+                        {% trans "Admin harakati" %}
+                    </option>
+                </select>
+            </div>
+
+            <!-- User Filter -->
+            <div class="form-group">
+                <label class="form-label">{% trans "Foydalanuvchi ID" %}</label>
+                <input type="number" name="user_id" class="form-input" 
+                       placeholder="{% trans 'Foydalanuvchi ID' %}" 
+                       value="{{ user_id }}">
+            </div>
+
+            <!-- Submit -->
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    🔍 {% trans "Filtrlash" %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Logs Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 140px;">{% trans "Vaqt" %}</th>
+                    <th style="width: 180px;">{% trans "Foydalanuvchi" %}</th>
+                    <th style="width: 120px;">{% trans "Harakat" %}</th>
+                    <th>{% trans "Tavsif" %}</th>
+                    <th style="width: 100px; text-align: center;">{% trans "Ticket" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <!-- Timestamp -->
+                    <td>
+                        <div style="font-size: 13px;">
+                            🕐 {{ log.timestamp|date:"d.m.Y" }}<br>
+                            <small class="text-muted">{{ log.timestamp|time:"H:i:s" }}</small>
+                        </div>
+                    </td>
+
+                    <!-- User -->
+                    <td>
+                        {% if log.changed_by %}
+                            <div class="user-cell-mini">
+                                {% if log.changed_by.photo %}
+                                    <img src="{{ log.changed_by.photo.url }}" class="avatar-mini" alt="{{ log.changed_by.get_full_name }}">
+                                {% else %}
+                                    <div class="avatar-mini-placeholder">
+                                        {{ log.changed_by.first_name|first }}{{ log.changed_by.last_name|first }}
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'tickets:superadmin_user_detail' log.changed_by.id %}" class="user-link">
+                                    {{ log.changed_by.get_full_name }}
+                                </a>
+                            </div>
+                        {% else %}
+                            <span class="text-muted">{% trans "Tizim" %}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Action Type -->
+                    <td>
+                        {% if log.action_type == 'created' %}
+                            <span class="badge badge-success">➕ {% trans "Yaratildi" %}</span>
+                        {% elif log.action_type == 'status_changed' %}
+                            <span class="badge badge-warning">🔄 {% trans "Status" %}</span>
+                        {% elif log.action_type == 'assigned' %}
+                            <span class="badge badge-info">👤 {% trans "Biriktirildi" %}</span>
+                        {% elif log.action_type == 'message_sent' %}
+                            <span class="badge badge-primary">💬 {% trans "Xabar" %}</span>
+                        {% elif log.action_type == 'reopened' %}
+                            <span class="badge badge-danger">↩️ {% trans "Qayta ochildi" %}</span>
+                        {% elif log.action_type == 'rated' %}
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">⭐ {% trans "Baholandi" %}</span>
+                        {% elif log.action_type == 'admin_action' %}
+                            <span class="badge" style="background: rgba(26, 29, 41, 0.15); color: #1a1d29;">🛡️ {% trans "Admin" %}</span>
+                        {% else %}
+                            <span class="badge">{{ log.action_type }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Message -->
+                    <td>
+                        <small>{{ log.message }}</small>
+                    </td>
+
+                    <!-- Ticket Link -->
+                    <td style="text-align: center;">
+                        {% if log.ticket %}
+                            <a href="{% url 'tickets:ticket_detail' log.ticket.pk %}" 
+                               class="btn-icon-small"
+                               data-tooltip="{% trans 'Ticketni ko\'rish' %}">
+                                #{{ log.ticket.pk }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">📜</div>
+                            <h3>{% trans "Loglar topilmadi" %}</h3>
+                            <p>{% trans "Filtr parametrlariga mos log mavjud emas." %}</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Info Card -->
+<div class="card" style="margin-top: 20px;">
+    <div style="text-align: center; padding: 20px;">
+        <h3 style="margin-bottom: 10px;">{{ logs|length }}</h3>
+        <p class="text-muted" style="margin: 0;">
+            ℹ️ {% trans "Ko'rsatilmoqda (oxirgi 200 ta log)" %}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.filter-form {
+    width: 100%;
+}
+
+.filter-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 15px;
+}
+
+.user-cell-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar-mini {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-mini-placeholder {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.user-link {
+    font-size: 13px;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.user-link:hover {
+    color: var(--accent-primary);
+}
+
+.btn-icon-small {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--accent-primary);
+    display: inline-block;
+    transition: var(--transition);
+}
+
+.btn-icon-small:hover {
+    background: var(--border-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .filter-grid-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+</style>
+{% endblock %}

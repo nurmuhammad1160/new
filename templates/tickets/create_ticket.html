@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Yangi murojaat" %}{% endblock %}
+
+{% block page_title %}{% trans "Yangi murojaat yaratish" %}{% endblock %}
+
+{% block content %}
+
+<div class="create-ticket-container">
+    <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <h2 class="card-title">{% trans "Yangi murojaat yaratish" %}</h2>
+        <p class="text-muted">{% trans "Texnik muammoni batafsil tavsiflang" %}</p>
+        
+        <form method="post" enctype="multipart/form-data" class="ticket-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">{% trans "Tizim" %} *</label>
+                {{ form.system }}
+                {% if form.system.errors %}
+                    <span class="form-error">{{ form.system.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">{% trans "Ustuvorlik" %} *</label>
+                {{ form.priority }}
+                {% if form.priority.errors %}
+                    <span class="form-error">{{ form.priority.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">{% trans "Muammo ta'rifi" %} *</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <span class="form-error">{{ form.description.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">{% trans "Fayl biriktirish" %} ({% trans "ixtiyoriy" %})</label>
+                {{ form.attachment }}
+                <small class="text-muted">{% trans "Ruxsat etilgan formatlar: PDF, DOC, DOCX, JPG, PNG, ZIP" %}</small>
+                {% if form.attachment.errors %}
+                    <span class="form-error">{{ form.attachment.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'tickets:dashboard' %}" class="btn btn-secondary">
+                    {% trans "Bekor qilish" %}
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    {% trans "Yuborish" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.create-ticket-container {
+    padding: 20px 0;
+}
+
+.ticket-form {
+    margin-top: 30px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+</style>
+{% endblock %}

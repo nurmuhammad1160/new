@@ -1,0 +1,229 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IIV Texnik Yordam{% endblock %}</title>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-theme="light">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="{% static 'images/logo.png' %}" alt="IIV Logo">
+            </div>
+            <p class="sidebar-tagline">{% trans "IIO xodimlari uchun yagona texnik yordam portali" %}</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            {% block sidebar_menu %}
+            {% if user.is_authenticated %}
+                <!-- BOSH ADMIN MENU (eng yuqorida!) -->
+                {% if user.is_superadmin %}
+                    <a href="{% url 'tickets:superadmin_dashboard' %}" class="nav-item">
+                        <span class="icon">👑</span>
+                        <span>{% trans "Bosh Admin Panel" %}</span>
+                    </a>
+                    <a href="{% url 'tickets:superadmin_users_list' %}" class="nav-item">
+                        <span class="icon">👥</span>
+                        <span>{% trans "Foydalanuvchilar" %}</span>
+                    </a>
+                    <a href="{% url 'systems:systems_list' %}" class="nav-item">
+                        <span class="icon">⚙️</span>
+                        <span>{% trans "Tizimlar" %}</span>
+                    </a>
+                    <a href="{% url 'tickets:superadmin_audit_logs' %}" class="nav-item">
+                        <span class="icon">📜</span>
+                        <span>{% trans "Audit Logs" %}</span>
+                    </a>
+                    <div class="nav-divider"></div>
+                {% endif %}
+                
+                <!-- ADMIN MENU -->
+                {% if user.is_admin %}
+                    <a href="{% url 'tickets:admin_dashboard' %}" class="nav-item">
+                        <span class="icon">📊</span>
+                        <span>{% trans "Dashboard" %}</span>
+                    </a>
+                    <a href="{% url 'tickets:admin_dashboard' %}" class="nav-item">
+                        <span class="icon">📋</span>
+                        <span>{% trans "Barcha murojaatlar" %}</span>
+                    </a>
+                    <a href="{% url 'tickets:users_list' %}" class="nav-item">
+                        <span class="icon">👥</span>
+                        <span>{% trans "Xodimlar" %}</span>
+                    </a>
+                
+                <!-- TECHNICIAN MENU -->
+                {% elif user.is_technician %}
+                    <a href="{% url 'tickets:technician_tickets' %}" class="nav-item">
+                        <span class="icon">📋</span>
+                        <span>{% trans "Mening murojaatlarim" %}</span>
+                    </a>
+                
+                <!-- USER MENU -->
+                {% else %}
+                    <a href="{% url 'tickets:dashboard' %}" class="nav-item">
+                        <span class="icon">📋</span>
+                        <span>{% trans "Mening murojaatlarim" %}</span>
+                    </a>
+                    <a href="{% url 'tickets:system_responsibles' %}" class="nav-item">
+                        <span class="icon">👨‍💼</span>
+                        <span>{% trans "Tizimlar bo'yicha mas'ullar" %}</span>
+                    </a>
+                {% endif %}
+                
+                <!-- UMUMIY MENU (barcha uchun) -->
+                <a href="{% url 'notifications:list' %}" class="nav-item">
+                    <span class="icon">🔔</span>
+                    <span>{% trans "Bildirishnomalar" %}</span>
+                    {% if unread_notifications_count > 0 %}
+                        <span class="badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+                
+                <a href="{% url 'accounts:profile' %}" class="nav-item">
+                    <span class="icon">👤</span>
+                    <span>{% trans "Profil" %}</span>
+                </a>
+                
+                <a href="{% url 'accounts:logout' %}" class="nav-item">
+                    <span class="icon">🚪</span>
+                    <span>{% trans "Chiqish" %}</span>
+                </a>
+            {% endif %}
+            {% endblock %}
+        </nav>
+        
+        {% if user.is_authenticated %}
+        <div class="sidebar-footer">
+            <div class="user-info">
+                {% if user.photo %}
+                    <img src="{{ user.photo.url }}" alt="Avatar" class="user-avatar">
+                {% else %}
+                    <div class="user-avatar-placeholder">{{ user.first_name.0 }}{{ user.last_name.0 }}</div>
+                {% endif %}
+                <div class="user-details">
+                    <div class="user-name">{{ user.get_full_name }}</div>
+                    <div class="user-role">{{ user.get_role_display }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</h1>
+            </div>
+            
+            <div class="topbar-right">
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <form method="post" action="{% url 'set_language' %}" id="languageForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <select name="language" onchange="this.form.submit()" class="language-select">
+                            <option value="uz" {% if request.LANGUAGE_CODE == 'uz' %}selected{% endif %}>O'zbekcha</option>
+                            <option value="uz-Cyrl" {% if request.LANGUAGE_CODE == 'uz-Cyrl' %}selected{% endif %}>Ўзбекча</option>
+                            <option value="ru" {% if request.LANGUAGE_CODE == 'ru' %}selected{% endif %}>Русский</option>
+                        </select>
+                    </form>
+                </div>
+              
+                
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                
+                <!-- Notifications -->
+                {% if user.is_authenticated %}
+                <div class="notifications-bell" onclick="toggleNotifications()">
+                    <span class="bell-icon">🔔</span>
+                    <span class="notification-count" id="notificationCount" style="display: none;">0</span>
+                    
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3>{% trans "Bildirishnomalar" %}</h3>
+                            <a href="{% url 'notifications:mark_all_as_read' %}">{% trans "Barchasini o'qilgan qilish" %}</a>
+                        </div>
+                        <div class="notifications-list" id="notificationsList">
+                            <p class="no-notifications">{% trans "Yangi bildirishnomalar yo'q" %}</p>
+                        </div>
+                        <div class="notifications-footer">
+                            <a href="{% url 'notifications:list' %}">{% trans "Barchasini ko'rish" %}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+        
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} fade-in">
+                <span>{{ message }}</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        <script>
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            });
+        });
+        </script>
+        {% endif %}
+        
+        <!-- Page Content -->
+        <div class="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Notification Sound -->
+    <audio id="notificationSound" src="{% static 'sounds/notification.mp3' %}" preload="auto"></audio>
+    
+    <!-- Base Scripts -->
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script>
+    // Global function for opening new ticket modal
+    function openNewTicketModal() {
+        // Check if modal exists on current page
+        const modal = document.getElementById('newTicketModal');
+        if (modal) {
+            // If exists, open it
+            modal.classList.add('active');
+        } else {
+            // If not, redirect to create ticket page
+            window.location.href = "{% url 'tickets:create_ticket' %}";
+        }
+    }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

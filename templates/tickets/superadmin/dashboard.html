@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Bosh Admin Paneli" %}{% endblock %}
+
+{% block page_title %}{% trans "Bosh Admin Paneli" %} 👑{% endblock %}
+
+{% block content %}
+<!-- Header Actions -->
+<div class="page-header">
+    <div>
+        <p class="text-muted" style="margin: 0;">{% trans "To'liq tizim nazorati" %}</p>
+    </div>
+    <a href="{% url 'tickets:superadmin_create_user' %}" class="btn btn-primary">
+        <span>➕</span> {% trans "Yangi foydalanuvchi" %}
+    </a>
+</div>
+
+<!-- System Health Alert -->
+{% if unassigned_tickets > 0 or reopened_tickets > 0 %}
+<div class="alert alert-warning" style="margin-bottom: 30px;">
+    <strong>⚠️ {% trans "Diqqat!" %}</strong>
+    {% if unassigned_tickets > 0 %}
+        {{ unassigned_tickets }} {% trans "ta biriktirilmagan murojaat." %}
+    {% endif %}
+    {% if reopened_tickets > 0 %}
+        {{ reopened_tickets }} {% trans "ta qayta ochilgan murojaat." %}
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Stats Cards -->
+<div class="stats-grid-4">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">👥</div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">{% trans "Foydalanuvchilar" %}</div>
+            <small class="text-success">✓ {{ active_users }} {% trans "faol" %}</small>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">📋</div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_tickets }}</div>
+            <div class="stat-label">{% trans "Murojaatlar" %}</div>
+            <small class="text-muted">📅 {{ tickets_today }} {% trans "bugun" %}</small>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">⚙️</div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_systems }}</div>
+            <div class="stat-label">{% trans "Tizimlar" %}</div>
+            <small class="text-muted">{% trans "aktiv" %}</small>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">⭐</div>
+        <div class="stat-content">
+            <div class="stat-value">{{ avg_rating|floatformat:1 }}</div>
+            <div class="stat-label">{% trans "O'rtacha baho" %}</div>
+            <small class="text-muted">{% trans "5 dan" %}</small>
+        </div>
+    </div>
+</div>
+
+<!-- Roles & Status Row -->
+<div class="grid-2">
+    <!-- Roles -->
+    <div class="card">
+        <h3 class="card-title">{% trans "Rollar bo'yicha" %}</h3>
+        <div class="stats-grid-2">
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #ef4444;">🛡️</span>
+                <div>
+                    <div class="stat-mini-value">{{ role_stats.superadmin }}</div>
+                    <div class="stat-mini-label">{% trans "Bosh admin" %}</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #3b82f6;">🛡️</span>
+                <div>
+                    <div class="stat-mini-value">{{ role_stats.admin }}</div>
+                    <div class="stat-mini-label">{% trans "Admin" %}</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #10b981;">🔧</span>
+                <div>
+                    <div class="stat-mini-value">{{ role_stats.technician }}</div>
+                    <div class="stat-mini-label">{% trans "Texnik" %}</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #6b7280;">👤</span>
+                <div>
+                    <div class="stat-mini-value">{{ role_stats.user }}</div>
+                    <div class="stat-mini-label">{% trans "Foydalanuvchi" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Status -->
+    <div class="card">
+        <h3 class="card-title">{% trans "Murojaat holati" %}</h3>
+        <div class="stats-grid-2">
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #f59e0b;">⏱️</span>
+                <div>
+                    <div class="stat-mini-value">{{ status_stats.pending|default:0 }}</div>
+                    <div class="stat-mini-label">{% trans "Kutilmoqda" %}</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #06b6d4;">⚙️</span>
+                <div>
+                    <div class="stat-mini-value">{{ status_stats.in_progress|default:0 }}</div>
+                    <div class="stat-mini-label">{% trans "Jarayonda" %}</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #10b981;">✓</span>
+                <div>
+                    <div class="stat-mini-value">{{ status_stats.resolved|default:0 }}</div>
+                    <div class="stat-mini-label">{% trans "Hal qilindi" %}</div>
+                </div>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-mini-icon" style="color: #ef4444;">✕</span>
+                <div>
+                    <div class="stat-mini-value">{{ status_stats.closed|default:0 }}</div>
+                    <div class="stat-mini-label">{% trans "Yopildi" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid-2">
+    <!-- Top Technicians -->
+    <div class="card">
+        <h3 class="card-title">{% trans "Eng faol texniklar" %}</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Texnik" %}</th>
+                        <th style="text-align: center;">{% trans "Hal qilingan" %}</th>
+                        <th style="text-align: center;">{% trans "Baho" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tech in top_technicians %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'tickets:superadmin_user_detail' tech.assigned_to__id %}">
+                                {{ tech.assigned_to__first_name }} {{ tech.assigned_to__last_name }}
+                            </a>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-success">{{ tech.resolved_count }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            {% if tech.avg_rating %}
+                                <span style="color: #f59e0b;">⭐ {{ tech.avg_rating|floatformat:1 }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">{% trans "Ma'lumot yo'q" %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Systems -->
+    <div class="card">
+        <h3 class="card-title">{% trans "Eng ko'p murojaat" %}</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Tizim" %}</th>
+                        <th style="text-align: center;">{% trans "Soni" %}</th>
+                        <th style="text-align: center;">{% trans "Foiz" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sys in top_systems %}
+                    <tr>
+                        <td>{{ sys.system__name }}</td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-primary">{{ sys.count }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <small class="text-muted">
+                                {% widthratio sys.count total_tickets 100 %}%
+                            </small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">{% trans "Ma'lumot yo'q" %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="grid-2">
+    <!-- Recent Users -->
+    <div class="card">
+        <div class="card-header-flex">
+            <h3 class="card-title">{% trans "Oxirgi faol foydalanuvchilar" %}</h3>
+            <a href="{% url 'tickets:superadmin_users_list' %}" class="btn btn-secondary btn-sm">
+                {% trans "Barchasi" %} →
+            </a>
+        </div>
+        <div class="list-group">
+            {% for user in recent_users %}
+            <a href="{% url 'tickets:superadmin_user_detail' user.id %}" class="list-item">
+                <div class="list-item-avatar">
+                    {% if user.photo %}
+                        <img src="{{ user.photo.url }}" alt="{{ user.get_full_name }}">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ user.first_name|first }}{{ user.last_name|first }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="list-item-content">
+                    <div class="list-item-title">{{ user.get_full_name }}</div>
+                    <small class="text-muted">{{ user.get_role_display }}</small>
+                </div>
+                <div class="list-item-meta">
+                    <small class="text-muted">{{ user.last_login|timesince }}</small>
+                </div>
+            </a>
+            {% empty %}
+            <div class="text-center text-muted" style="padding: 20px;">{% trans "Ma'lumot yo'q" %}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Tickets -->
+    <div class="card">
+        <div class="card-header-flex">
+            <h3 class="card-title">{% trans "Oxirgi murojaatlar" %}</h3>
+            <a href="{% url 'tickets:admin_dashboard' %}" class="btn btn-secondary btn-sm">
+                {% trans "Barchasi" %} →
+            </a>
+        </div>
+        <div class="list-group">
+            {% for ticket in recent_tickets %}
+            <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="list-item">
+                <div class="list-item-content">
+                    <div class="list-item-title">{{ ticket.title|truncatewords:8 }}</div>
+                    <small class="text-muted">
+                        {{ ticket.user.get_full_name }} • {{ ticket.created_at|timesince }}
+                    </small>
+                </div>
+                <span class="badge badge-{{ ticket.status }}">
+                    {{ ticket.get_status_display }}
+                </span>
+            </a>
+            {% empty %}
+            <div class="text-center text-muted" style="padding: 20px;">{% trans "Ma'lumot yo'q" %}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="card">
+    <h3 class="card-title">{% trans "Tezkor havolalar" %}</h3>
+    <div class="quick-links">
+        <a href="{% url 'tickets:superadmin_users_list' %}" class="quick-link-item">
+            <span class="quick-link-icon">👥</span>
+            <span>{% trans "Foydalanuvchilar" %}</span>
+        </a>
+        <a href="{% url 'systems:systems_list' %}" class="quick-link-item">
+            <span class="quick-link-icon">⚙️</span>
+            <span>{% trans "Tizimlar" %}</span>
+        </a>
+        <a href="{% url 'tickets:superadmin_settings' %}" class="quick-link-item">
+            <span class="quick-link-icon">🔧</span>
+            <span>{% trans "Sozlamalar" %}</span>
+        </a>
+        <a href="{% url 'tickets:superadmin_audit_logs' %}" class="quick-link-item">
+            <span class="quick-link-icon">📜</span>
+            <span>{% trans "Audit Log" %}</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.stats-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.stats-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.stat-mini-icon {
+    font-size: 24px;
+}
+
+.stat-mini-value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-mini-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.list-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.list-item-avatar {
+    flex-shrink: 0;
+}
+
+.list-item-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.list-item-content {
+    flex: 1;
+}
+
+.list-item-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.list-item-meta {
+    flex-shrink: 0;
+}
+
+.quick-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.quick-link-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.quick-link-item:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.quick-link-icon {
+    font-size: 32px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Badge colors based on status */
+.badge-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.badge-in_progress { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.badge-resolved { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badge-closed { background: rgba(107, 114, 128, 0.15); color: #6b7280; }
+
+@media (max-width: 1200px) {
+    .stats-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .quick-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid-4,
+    .grid-2,
+    .quick-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Foydalanuvchini o'chirish" %}{% endblock %}
+
+{% block page_title %}{% trans "Foydalanuvchini o'chirish" %}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card" style="border: 2px solid var(--accent-danger);">
+        <!-- Danger Alert -->
+        <div class="alert alert-error" style="margin-bottom: 20px;">
+            <h3 style="margin: 0 0 10px 0;">⚠️ {% trans "Diqqat!" %}</h3>
+            <p style="margin: 0;">{% trans "Foydalanuvchini o'chirish QAYTARILMAS jarayon!" %}</p>
+        </div>
+
+        <!-- User Info -->
+        <div class="info-box">
+            <h4 style="margin: 0 0 15px 0;">{% trans "O'chiriladigan foydalanuvchi:" %}</h4>
+            <div class="user-info-details">
+                <div class="info-row">
+                    <span class="info-label">{% trans "Ism:" %}</span>
+                    <span class="info-value">{{ user_obj.get_full_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">{% trans "Username:" %}</span>
+                    <span class="info-value">@{{ user_obj.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">{% trans "Rol:" %}</span>
+                    <span class="info-value">
+                        {% if user_obj.role == 'superadmin' %}
+                            <span class="badge badge-danger">👑 {{ user_obj.get_role_display }}</span>
+                        {% elif user_obj.role == 'admin' %}
+                            <span class="badge badge-primary">🛡️ {{ user_obj.get_role_display }}</span>
+                        {% elif user_obj.role == 'technician' %}
+                            <span class="badge badge-success">🔧 {{ user_obj.get_role_display }}</span>
+                        {% else %}
+                            <span class="badge">👤 {{ user_obj.get_role_display }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Data Warning -->
+        {% if tickets_count > 0 or assigned_count > 0 %}
+        <div class="alert alert-warning" style="margin-top: 20px;">
+            <strong>⚠️ {% trans "Bu foydalanuvchi bilan bog'liq:" %}</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                {% if tickets_count > 0 %}
+                <li>{{ tickets_count }} {% trans "ta yaratilgan murojaat" %}</li>
+                {% endif %}
+                {% if assigned_count > 0 %}
+                <li>{{ assigned_count }} {% trans "ta biriktirilgan murojaat" %}</li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form method="post" style="margin-top: 30px;">
+            {% csrf_token %}
+            <div class="form-actions">
+                {% if tickets_count == 0 and assigned_count == 0 %}
+                <button type="submit" class="btn btn-danger" style="width: 100%;">
+                    🗑️ {% trans "Ha, o'chirish" %}
+                </button>
+                {% else %}
+                <div class="alert alert-info" style="margin-bottom: 10px;">
+                    ℹ️ {% trans "O'chirish imkoniyati mavjud emas. Avval bog'langan murojaatlarni hal qiling." %}
+                </div>
+                {% endif %}
+                <a href="{% url 'tickets:superadmin_user_detail' user_obj.id %}" 
+                   class="btn btn-secondary" style="width: 100%;">
+                    ← {% trans "Bekor qilish" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.info-box {
+    background: var(--bg-tertiary);
+    padding: 20px;
+    border-radius: var(--radius-sm);
+}
+
+.user-info-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.info-value {
+    color: var(--text-primary);
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        max-width: 100%;
+    }
+    
+    .info-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}

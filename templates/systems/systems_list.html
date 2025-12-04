@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Tizimlar" %}{% endblock %}
+
+{% block page_title %}{% trans "Tizimlar boshqaruvi" %}{% endblock %}
+
+{% block content %}
+<!-- Header Actions -->
+<div class="page-header">
+    <div>
+        <p class="text-muted" style="margin: 0;">{% trans "Barcha tizimlar ro'yxati" %}</p>
+    </div>
+    <a href="{% url 'systems:system_create' %}" class="btn btn-primary">
+        <span>➕</span> {% trans "Yangi tizim" %}
+    </a>
+</div>
+
+<!-- Filters Card -->
+<div class="card" style="margin-bottom: 30px;">
+    <form method="get" class="filter-form">
+        <div class="filter-grid-3">
+            <div class="form-group">
+                <label class="form-label">{% trans "Qidirish" %}</label>
+                <input type="text" name="search" class="form-input" 
+                       placeholder="{% trans 'Tizim nomi yoki tavsif...' %}"
+                       value="{{ search }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{% trans "Holat" %}</label>
+                <select name="status" class="form-select">
+                    <option value="">{% trans "Barchasi" %}</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>
+                        {% trans "Faol" %}
+                    </option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>
+                        {% trans "Nofaol" %}
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    🔍 {% trans "Qidirish" %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Systems Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>{% trans "Tizim nomi" %}</th>
+                    <th>{% trans "Tavsif" %}</th>
+                    <th style="text-align: center;">{% trans "Murojaatlar" %}</th>
+                    <th style="text-align: center;">{% trans "Mas'ullar" %}</th>
+                    <th style="text-align: center;">{% trans "Holat" %}</th>
+                    <th style="text-align: center;">{% trans "Amallar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in systems_data %}
+                <tr>
+                    <!-- ID -->
+                    <td><strong>{{ data.system.id }}</strong></td>
+
+                    <!-- Name -->
+                    <td>
+                        <strong>{{ data.system.name }}</strong>
+                    </td>
+
+                    <!-- Description -->
+                    <td>
+                        <span class="text-muted">
+                            {{ data.system.description|truncatewords:10 }}
+                        </span>
+                    </td>
+
+                    <!-- Tickets Count -->
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ data.tickets_count }}</span>
+                    </td>
+
+                    <!-- Responsibles Count -->
+                    <td style="text-align: center;">
+                        <a href="{% url 'systems:system_responsibles' data.system.id %}" 
+                           class="badge badge-primary" style="text-decoration: none;">
+                            {{ data.responsibles_count }} →
+                        </a>
+                    </td>
+
+                    <!-- Status -->
+                    <td style="text-align: center;">
+                        {% if data.system.is_active %}
+                            <span class="badge badge-success">✓ {% trans "Faol" %}</span>
+                        {% else %}
+                            <span class="badge badge-danger">✕ {% trans "Nofaol" %}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Actions -->
+                    <td style="text-align: center;">
+                        <div class="action-buttons">
+                            <a href="{% url 'systems:system_responsibles' data.system.id %}" 
+                               class="btn-icon" 
+                               data-tooltip="{% trans 'Mas\'ullar' %}">
+                                👥
+                            </a>
+                            <a href="{% url 'systems:system_edit' data.system.pk %}" 
+                               class="btn-icon" 
+                               data-tooltip="{% trans 'Tahrirlash' %}">
+                                ✏️
+                            </a>
+                            <a href="{% url 'systems:system_toggle_status' data.system.pk %}" 
+                               class="btn-icon" 
+                               data-tooltip="{% trans 'Holat o\'zgartirish' %}"
+                               onclick="return confirm('{% trans "Holat o\'zgartirilsinmi?" %}')">
+                                🔄
+                            </a>
+                            <a href="{% url 'systems:system_delete' data.system.pk %}" 
+                               class="btn-icon btn-icon-danger" 
+                               data-tooltip="{% trans 'O\'chirish' %}">
+                                🗑️
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <h3>{% trans "Tizimlar topilmadi" %}</h3>
+                            <p>{% trans "Hali tizimlar mavjud emas." %}</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="card" style="margin-top: 20px;">
+    <div style="text-align: center; padding: 20px;">
+        <h3 style="margin-bottom: 5px;">{{ systems_data|length }}</h3>
+        <p class="text-muted" style="margin: 0;">{% trans "Ko'rsatilmoqda" %}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.filter-form {
+    width: 100%;
+}
+
+.filter-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 15px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-icon {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    background: var(--border-color);
+    transform: translateY(-1px);
+}
+
+.btn-icon-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--accent-danger);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .filter-grid-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+}
+</style>
+{% endblock %}

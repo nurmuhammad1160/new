@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Mening murojaatlarim" %} - {% trans "Texnik" %}{% endblock %}
+
+{% block page_title %}{% trans "Mening murojaatlarim" %}{% endblock %}
+
+{% block content %}
+
+<!-- Welcome Card -->
+<div class="welcome-card">
+    <div class="welcome-content">
+        <h2>{% trans "Assalomu alaykum" %}, {{ user.get_full_name }}!</h2>
+        <p>{% trans "Sizga biriktirilgan barcha murojaatlar ro'yxati. Muammolarni tez hal qiling!" %}</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(255, 193, 7, 0.1); color: #ffc107;">
+            📥
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.new }}</div>
+            <div class="stat-label">{% trans "Yangi" %}</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">
+            ⏳
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.in_progress }}</div>
+            <div class="stat-label">{% trans "Jarayonda" %}</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            ⏸️
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.pending }}</div>
+            <div class="stat-label">{% trans "Kutilmoqda" %}</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            ✓
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.resolved_today }}</div>
+            <div class="stat-label">{% trans "Bugun hal qilindi" %}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-top: 30px;">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Filtrlash" %}</h3>
+    </div>
+    <form method="get" class="filter-form">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label class="form-label">{% trans "Tizim" %}</label>
+                {{ filter_form.system }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Holat" %}</label>
+                {{ filter_form.status }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Ustuvorlik" %}</label>
+                {{ filter_form.priority }}
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    {% trans "Filtrlash" %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Tickets Table -->
+<div class="card" style="margin-top: 30px;">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Murojaatlar ro'yxati" %}</h3>
+    </div>
+    
+    {% if tickets %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>{% trans "Sana/Vaqt" %}</th>
+                    <th>{% trans "Foydalanuvchi" %}</th>
+                    <th>{% trans "Tizim" %}</th>
+                    <th>{% trans "Viloyat" %}</th>
+                    <th>{% trans "Holat" %}</th>
+                    <th>{% trans "Ustuvorlik" %}</th>
+                    <th>{% trans "Harakatlar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr onclick="window.location='{% url 'tickets:ticket_detail' ticket.pk %}'" style="cursor: pointer;">
+                    <td><strong>{{ ticket.get_ticket_number }}</strong></td>
+                    <td>{{ ticket.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ ticket.user.get_full_name }}</td>
+                    <td>{{ ticket.system.name }}</td>
+                    <td>{{ ticket.region.name }}</td>
+                    <td>
+                        <span class="status-badge status-{{ ticket.status }}">
+                            {{ ticket.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="priority-badge priority-{{ ticket.priority }}">
+                            ● {{ ticket.get_priority_display }}
+                        </span>
+                    </td>
+                    <td onclick="event.stopPropagation();">
+                        <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="btn-icon" title="{% trans 'Ko\'rish' %}">
+                            👁️
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>{% trans "Murojaatlar topilmadi" %}</h3>
+        <p>{% trans "Sizga hali murojaatlar biriktirilmagan." %}</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.welcome-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.welcome-content h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.welcome-content p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-new { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.status-in_progress { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.status-pending_approval { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-resolved { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-rejected { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.status-reopened { background: rgba(147, 51, 234, 0.15); color: #9333ea; }
+
+.priority-badge {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.priority-low { color: #10b981; }
+.priority-medium { color: #f59e0b; }
+.priority-high { color: #ef4444; }
+
+.btn-icon {
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.btn-icon:hover {
+    background: var(--bg-tertiary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+}
+</style>
+{% endblock %}

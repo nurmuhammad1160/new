@@ -1,0 +1,197 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Ro'yxatdan o'tish" %} - IIV Texnik Yordam</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body data-theme="light">
+    
+    <div class="auth-container">
+        <!-- Left Side - Info -->
+        <div class="auth-left">
+            <div class="auth-logo">
+                <img src="{% static 'images/logo1.png' %}" alt="IIV Logo">
+            </div>
+            <h1 class="auth-title">{% trans "IIV Texnik Yordam Tizimi" %}</h1>
+            <p class="auth-description">
+                {% trans "Bu sahifa orqali IIO xodimlari har qanday tizimlarda uchraydigan muammolar (tizim ishlamaslik holatlari, login parol olish, tarmoq uzilish va h.k.) bo'yicha texnik yordam olishlari mumkin!" %}
+            </p>
+            
+            <div class="auth-features">
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>{% trans "Tez ro'yxatdan o'tish" %}</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>{% trans "Xavfsiz va ishonchli" %}</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>{% trans "Bepul texnik yordam" %}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Form -->
+        <div class="auth-right">
+            <div class="auth-controls">
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <form method="post" action="{% url 'accounts:change_language' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <select id="languageSelect" class="language-select" name="language" onchange="this.form.submit()">
+                            <option value="uz" {% if request.LANGUAGE_CODE == 'uz' %}selected{% endif %}>O'zbekcha</option>
+                            <option value="uz-cy" {% if request.LANGUAGE_CODE == 'uz-cy' %}selected{% endif %}>Ўзбекча</option>
+                            <option value="ru" {% if request.LANGUAGE_CODE == 'ru' %}selected{% endif %}>Русский</option>
+                        </select>
+                    </form>
+                </div>
+                
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            
+            <div class="auth-form-container register-form">
+                <h2 class="form-title">{% trans "Ro'yxatdan o'tish" %}</h2>
+                <p class="form-subtitle">{% trans "Ma'lumotlaringizni to'ldiring" %}</p>
+                
+                <!-- Messages -->
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Register Form -->
+                <form method="post" enctype="multipart/form-data" class="auth-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">{% trans "Familiya" %} *</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <span class="form-error">{{ form.last_name.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">{% trans "Ism" %} *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <span class="form-error">{{ form.first_name.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Sharif" %}</label>
+                        {{ form.middle_name }}
+                        {% if form.middle_name.errors %}
+                            <span class="form-error">{{ form.middle_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">{% trans "Viloyat" %} *</label>
+                            {{ form.region }}
+                            {% if form.region.errors %}
+                                <span class="form-error">{{ form.region.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">{% trans "Hududiy bo'lim" %}</label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                                <span class="form-error">{{ form.department.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Lavozim" %}</label>
+                        {{ form.position }}
+                        {% if form.position.errors %}
+                            <span class="form-error">{{ form.position.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Telefon" %}</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <span class="form-error">{{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Login" %} *</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <span class="form-error">{{ form.username.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">{% trans "Parol" %} *</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <span class="form-error">{{ form.password1.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">{% trans "Parolni tasdiqlang" %} *</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <span class="form-error">{{ form.password2.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Avatar (ixtiyoriy)" %}</label>
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}
+                            <span class="form-error">{{ form.avatar.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        {% trans "Ro'yxatdan o'tish" %}
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>{% trans "Hisobingiz bormi?" %} 
+                        <a href="{% url 'accounts:login' %}" class="auth-link">{% trans "Tizimga kiring" %}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/theme.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Tizimlar bo'yicha mas'ullar" %}{% endblock %}
+
+{% block page_title %}{% trans "Tizimlar bo'yicha mas'ullar" %}{% endblock %}
+
+{% block content %}
+
+<div class="responsibles-page">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{% trans "Tizimlar bo'yicha mas'ul xodimlar" %}</h3>
+            <p class="card-subtitle">
+                {% trans "Bu ro'yxatda sizning viloyatingiz" %} ({{ user.region.name }}) {% trans "bo'yicha har bir tizim uchun mas'ul adminlar va texnik xodimlar ko'rsatilgan." %}
+            </p>
+        </div>
+        
+        {% if responsibles_data %}
+        <div class="responsibles-list">
+            {% for item in responsibles_data %}
+            <div class="responsible-card">
+                <div class="system-header">
+                    <div class="system-icon">🖥️</div>
+                    <div>
+                        <h4 class="system-name">{{ item.system.name }}</h4>
+                        {% if item.system.description %}
+                        <p class="system-description">{{ item.system.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="responsible-section">
+                    <div class="section-title">
+                        <span class="icon">👨‍💼</span>
+                        {% trans "Mas'ul admin" %}
+                    </div>
+                    {% if item.admin %}
+                    <div class="person-card">
+                        <div class="person-avatar">
+                            {% if item.admin.user.avatar %}
+                                <img src="{{ item.admin.user.avatar.url }}" alt="Avatar">
+                            {% else %}
+                                <div class="avatar-placeholder">
+                                    {{ item.admin.user.first_name.0 }}{{ item.admin.user.last_name.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="person-info">
+                            <div class="person-name">{{ item.admin.user.get_full_name }}</div>
+                            <div class="person-details">
+                                {% if item.admin.user.phone %}
+                                    📞 {{ item.admin.user.phone }}
+                                {% endif %}
+                                {% if item.admin.region %}
+                                    <span class="badge badge-info">{{ item.admin.region.name }}</span>
+                                {% else %}
+                                    <span class="badge badge-primary">{% trans "Respublika" %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">{% trans "Mas'ul admin belgilanmagan" %}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="responsible-section">
+                    <div class="section-title">
+                        <span class="icon">👨‍🔧</span>
+                        {% trans "Mas'ul texnik xodimlar" %}
+                    </div>
+                    {% if item.technicians %}
+                        {% for tech in item.technicians %}
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                {% if tech.user.avatar %}
+                                    <img src="{{ tech.user.avatar.url }}" alt="Avatar">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        {{ tech.user.first_name.0 }}{{ tech.user.last_name.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="person-info">
+                                <div class="person-name">{{ tech.user.get_full_name }}</div>
+                                <div class="person-details">
+                                    {% if tech.user.phone %}
+                                        📞 {{ tech.user.phone }}
+                                    {% endif %}
+                                    {% if tech.region %}
+                                        <span class="badge badge-info">{{ tech.region.name }}</span>
+                                    {% else %}
+                                        <span class="badge badge-primary">{% trans "Respublika" %}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted">{% trans "Mas'ul texnik xodim belgilanmagan" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🖥️</div>
+            <h3>{% trans "Tizimlar topilmadi" %}</h3>
+            <p>{% trans "Hozirda faol tizimlar mavjud emas" %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.responsibles-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card-subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.responsibles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 25px;
+}
+
+.responsible-card {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+    padding: 25px;
+    border: 1px solid var(--border-color);
+}
+
+.system-header {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.system-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--accent-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.system-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.system-description {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+}
+
+.responsible-section {
+    margin-bottom: 20px;
+}
+
+.responsible-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.section-title .icon {
+    font-size: 18px;
+}
+
+.person-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    padding: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.person-card:last-child {
+    margin-bottom: 0;
+}
+
+.person-avatar {
+    flex-shrink: 0;
+}
+
+.person-avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.person-info {
+    flex: 1;
+}
+
+.person-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.person-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-primary {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--accent-primary);
+}
+
+.badge-info {
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--accent-info);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .person-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .person-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Tizim mas'ullari" %}{% endblock %}
+
+{% block page_title %}{{ system.name }} - {% trans "Mas'ullar" %}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <p class="text-muted" style="margin: 0;">{% trans "Tizim bo'yicha mas'ul shaxslar" %}</p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'systems:responsible_create' system.id %}" class="btn btn-primary">
+            ➕ {% trans "Mas'ul qo'shish" %}
+        </a>
+        <a href="{% url 'systems:systems_list' %}" class="btn btn-secondary">
+            ← {% trans "Orqaga" %}
+        </a>
+    </div>
+</div>
+
+<!-- Default Responsibles (Respublika) -->
+{% if default_responsibles %}
+<div class="card" style="margin-bottom: 30px;">
+    <h3 class="card-title">🌐 {% trans "Default mas'ullar (Respublika miqyosida)" %}</h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "F.I.O" %}</th>
+                    <th>{% trans "Username" %}</th>
+                    <th>{% trans "Rol" %}</th>
+                    <th style="text-align: center;">{% trans "Amallar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resp in default_responsibles %}
+                <tr>
+                    <td>
+                        <strong>{{ resp.user.get_full_name }}</strong>
+                    </td>
+                    <td>
+                        <span class="text-muted">@{{ resp.user.username }}</span>
+                    </td>
+                    <td>
+                        {% if resp.role_in_system == 'admin' %}
+                            <span class="badge badge-primary">🛡️ {% trans "Admin" %}</span>
+                        {% else %}
+                            <span class="badge badge-success">🔧 {% trans "Texnik" %}</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="action-buttons">
+                            <a href="{% url 'systems:responsible_edit' resp.pk %}" 
+                               class="btn-icon"
+                               data-tooltip="{% trans 'Tahrirlash' %}">
+                                ✏️
+                            </a>
+                            <a href="{% url 'systems:responsible_delete' resp.pk %}" 
+                               class="btn-icon btn-icon-danger"
+                               data-tooltip="{% trans 'O\'chirish' %}">
+                                🗑️
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Regional Responsibles -->
+{% if regions_data %}
+<div class="card">
+    <h3 class="card-title">📍 {% trans "Viloyat bo'yicha mas'ullar" %}</h3>
+    
+    {% for region_name, data in regions_data.items %}
+    <div class="region-section">
+        <h4 class="region-title">{{ region_name }}</h4>
+        
+        <!-- Admins -->
+        {% if data.admins %}
+        <div class="responsible-group">
+            <h5 class="group-title">🛡️ {% trans "Adminlar" %}</h5>
+            <div class="responsible-list">
+                {% for admin in data.admins %}
+                <div class="responsible-item">
+                    <div class="responsible-info">
+                        <strong>{{ admin.user.get_full_name }}</strong>
+                        <small class="text-muted">@{{ admin.user.username }}</small>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="{% url 'systems:responsible_edit' admin.pk %}" 
+                           class="btn-icon-small"
+                           data-tooltip="{% trans 'Tahrirlash' %}">
+                            ✏️
+                        </a>
+                        <a href="{% url 'systems:responsible_delete' admin.pk %}" 
+                           class="btn-icon-small btn-icon-danger"
+                           data-tooltip="{% trans 'O\'chirish' %}">
+                            🗑️
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Technicians -->
+        {% if data.technicians %}
+        <div class="responsible-group">
+            <h5 class="group-title">🔧 {% trans "Texniklar" %}</h5>
+            <div class="responsible-list">
+                {% for tech in data.technicians %}
+                <div class="responsible-item">
+                    <div class="responsible-info">
+                        <strong>{{ tech.user.get_full_name }}</strong>
+                        <small class="text-muted">@{{ tech.user.username }}</small>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="{% url 'systems:responsible_edit' tech.pk %}" 
+                           class="btn-icon-small"
+                           data-tooltip="{% trans 'Tahrirlash' %}">
+                            ✏️
+                        </a>
+                        <a href="{% url 'systems:responsible_delete' tech.pk %}" 
+                           class="btn-icon-small btn-icon-danger"
+                           data-tooltip="{% trans 'O\'chirish' %}">
+                            🗑️
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Empty State -->
+{% if not default_responsibles and not regions_data %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>{% trans "Mas'ullar topilmadi" %}</h3>
+        <p>{% trans "Hali mas'ul shaxslar belgilanmagan." %}</p>
+        <a href="{% url 'systems:responsible_create' system.id %}" class="btn btn-primary" style="margin-top: 20px;">
+            ➕ {% trans "Birinchi mas'ulni qo'shish" %}
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Info Card -->
+<div class="card" style="margin-top: 30px;">
+    <h3 class="card-title">ℹ️ {% trans "Ma'lumot" %}</h3>
+    <ul style="margin: 15px 0 0 0; padding-left: 20px; line-height: 1.8;">
+        <li>{% trans "Default mas'ullar barcha viloyatlar uchun javobgar" %}</li>
+        <li>{% trans "Viloyat mas'ullari faqat o'z viloyati uchun javobgar" %}</li>
+        <li>{% trans "Agar viloyatda mas'ul bo'lmasa, default mas'ulga yuboriladi" %}</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-icon {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    background: var(--border-color);
+    transform: translateY(-1px);
+}
+
+.btn-icon-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--accent-danger);
+}
+
+.btn-icon-small {
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-icon-small:hover {
+    background: var(--border-color);
+}
+
+.region-section {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.region-section:last-child {
+    border-bottom: none;
+}
+
+.region-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.responsible-group {
+    margin-bottom: 20px;
+}
+
+.responsible-group:last-child {
+    margin-bottom: 0;
+}
+
+.group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.responsible-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.responsible-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.responsible-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .header-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

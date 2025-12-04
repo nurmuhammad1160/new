@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Tizim sozlamalari" %}{% endblock %}
+
+{% block page_title %}{% trans "Tizim sozlamalari" %}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header">
+    <div>
+        <p class="text-muted" style="margin: 0;">{% trans "Global sozlamalar va default mas'ullar" %}</p>
+    </div>
+    <a href="{% url 'tickets:superadmin_dashboard' %}" class="btn btn-secondary">
+        ← {% trans "Orqaga" %}
+    </a>
+</div>
+
+<!-- Systems with Default Responsibles -->
+<div class="systems-grid">
+    {% for data in systems_data %}
+    <div class="card">
+        <div class="card-header-flex">
+            <h3 class="card-title">{{ data.system.name }}</h3>
+            <a href="{% url 'systems:system_responsibles' data.system.id %}" 
+               class="btn btn-primary btn-sm">
+                ⚙️ {% trans "Boshqarish" %}
+            </a>
+        </div>
+
+        <!-- Default Admin -->
+        <div class="responsible-section">
+            <h4 class="section-subtitle">{% trans "Default Admin (Respublika):" %}</h4>
+            {% if data.default_admin %}
+                <div class="responsible-item">
+                    <div class="responsible-icon" style="color: #3b82f6;">👤</div>
+                    <div>
+                        <strong>{{ data.default_admin.user.get_full_name }}</strong><br>
+                        <small class="text-muted">@{{ data.default_admin.user.username }}</small>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning" style="margin: 0;">
+                    ⚠️ {% trans "Default admin belgilanmagan!" %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Default Technicians -->
+        <div class="responsible-section">
+            <h4 class="section-subtitle">{% trans "Default Texniklar:" %}</h4>
+            {% if data.default_techs %}
+                <div class="technicians-list">
+                    {% for tech in data.default_techs %}
+                    <div class="responsible-item-small">
+                        <span class="responsible-icon-small" style="color: #10b981;">🔧</span>
+                        <strong>{{ tech.user.get_full_name }}</strong>
+                        <small class="text-muted">(@{{ tech.user.username }})</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info" style="margin: 0;">
+                    ℹ️ {% trans "Default texniklar belgilanmagan" %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="empty-state">
+            <div class="empty-icon">⚙️</div>
+            <h3>{% trans "Tizimlar topilmadi" %}</h3>
+            <p>{% trans "Faol tizimlar mavjud emas." %}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Info Card -->
+<div class="card" style="margin-top: 30px;">
+    <h3 class="card-title">ℹ️ {% trans "Default mas'ullar haqida" %}</h3>
+    <ul class="info-list" style="margin: 20px 0 0 0; padding-left: 20px; line-height: 1.8;">
+        <li>{% trans "Default mas'ullar respublika miqyosida barcha viloyatlar uchun javobgar" %}</li>
+        <li>{% trans "Agar viloyatda maxsus mas'ul belgilanmagan bo'lsa, default mas'ulga yuboriladi" %}</li>
+        <li>{% trans "Har bir tizim uchun kamida bitta default admin bo'lishi tavsiya etiladi" %}</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.systems-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.responsible-section {
+    margin-bottom: 20px;
+}
+
+.responsible-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-subtitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.responsible-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.responsible-icon {
+    font-size: 24px;
+}
+
+.technicians-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.responsible-item-small {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+}
+
+.responsible-icon-small {
+    font-size: 18px;
+}
+
+.info-list {
+    list-style-type: disc;
+}
+
+.info-list li {
+    margin-bottom: 8px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+@media (max-width: 1024px) {
+    .systems-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,711 @@
+# Russian translations for IIV Support
+msgid ""
+msgstr ""
+"Project-Id-Version: IIV Support 1.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+# ============================================
+# ОБЩЕЕ / COMMON
+# ============================================
+
+msgid "IIO xodimlari uchun yagona texnik yordam portali"
+msgstr "Единый портал технической поддержки для сотрудников МВД"
+msgid "Dashboard"
+msgstr "Панель управления"
+
+msgid "Mening murojaatlarim"
+msgstr "Мои обращения"
+
+msgid "Barcha murojaatlar"
+msgstr "Все обращения"
+
+msgid "Xodimlar"
+msgstr "Сотрудники"
+
+msgid "Tizimlar bo'yicha mas'ullar"
+msgstr "Ответственные по системам"
+
+msgid "Bildirishnomalar"
+msgstr "Уведомления"
+
+msgid "Profil"
+msgstr "Профиль"
+
+msgid "Chiqish"
+msgstr "Выход"
+
+msgid "Yangi murojaat"
+msgstr "Новое обращение"
+
+# ============================================
+# СТАТУСЫ ОБРАЩЕНИЙ
+# ============================================
+
+msgid "Yangi"
+msgstr "Новый"
+
+msgid "Jarayonda"
+msgstr "В процессе"
+
+msgid "Hal qilindi (kutilmoqda)"
+msgstr "Решено (ожидается)"
+
+msgid "Hal qilindi"
+msgstr "Решено"
+
+msgid "Rad etildi"
+msgstr "Отклонено"
+
+msgid "Qayta ochildi"
+msgstr "Переоткрыто"
+
+# ============================================
+# ПРИОРИТЕТ / PRIORITY
+# ============================================
+
+msgid "Oddiy"
+msgstr "Обычный"
+
+msgid "O'rtacha"
+msgstr "Средний"
+
+msgid "Yuqori"
+msgstr "Высокий"
+
+# ============================================
+# РОЛИ ПОЛЬЗОВАТЕЛЕЙ
+# ============================================
+
+msgid "Oddiy foydalanuvchi"
+msgstr "Обычный пользователь"
+
+msgid "Texnik xodim"
+msgstr "Технический специалист"
+
+msgid "Admin"
+msgstr "Администратор"
+
+msgid "Bosh admin"
+msgstr "Главный администратор"
+
+# ============================================
+# НАВИГАЦИЯ И МЕНЮ
+# ============================================
+
+msgid "Barchasini o'qilgan qilish"
+msgstr "Отметить все как прочитанное"
+
+msgid "Yangi bildirishnomalar yo'q"
+msgstr "Нет новых уведомлений"
+
+msgid "Barchasini ko'rish"
+msgstr "Посмотреть все"
+
+# ============================================
+# ПАНЕЛЬ УПРАВЛЕНИЯ
+# ============================================
+
+msgid "Assalomu alaykum"
+msgstr "Здравствуйте"
+
+msgid "Bugungi murojaatlar"
+msgstr "Сегодняшние обращения"
+
+msgid "Jami murojaatlar"
+msgstr "Всего обращений"
+
+msgid "Bugungi umumiy murojaatlar soni"
+msgstr "Общее количество сегодняшних обращений"
+
+msgid "Hal qilingan"
+msgstr "Решено"
+
+msgid "Qayta ochilgan"
+msgstr "Переоткрыто"
+
+msgid "O'rtacha baholash"
+msgstr "Средняя оценка"
+
+msgid "Filtrlash"
+msgstr "Фильтрация"
+
+msgid "Tizim"
+msgstr "Система"
+
+msgid "Holat"
+msgstr "Статус"
+
+msgid "Ustuvorlik"
+msgstr "Приоритет"
+
+msgid "Sana/Vaqt"
+msgstr "Дата/Время"
+
+msgid "Foydalanuvchi"
+msgstr "Пользователь"
+
+msgid "Viloyat"
+msgstr "Область"
+
+msgid "Mas'ul xodim"
+msgstr "Ответственный сотрудник"
+
+msgid "Baholash"
+msgstr "Оценка"
+
+msgid "Baho"
+msgstr "Оценка"
+
+msgid "Harakatlar"
+msgstr "Действия"
+
+msgid "Ko'rish"
+msgstr "Просмотр"
+
+msgid "Murojaatlar topilmadi"
+msgstr "Обращения не найдены"
+
+msgid "Hali murojaatlar yo'q."
+msgstr "Обращений пока нет."
+
+msgid "Sizga hali murojaatlar biriktirilmagan."
+msgstr "Вам еще не назначены обращения."
+
+# ============================================
+# ДЕТАЛИ ОБРАЩЕНИЯ
+# ============================================
+
+msgid "Murojaat tafsilotlari"
+msgstr "Детали обращения"
+
+msgid "Umumiy ma'lumotlar"
+msgstr "Общая информация"
+
+msgid "Yaratilgan"
+msgstr "Создано"
+
+msgid "Yangilangan"
+msgstr "Обновлено"
+
+msgid "Muammo ta'rifi"
+msgstr "Описание проблемы"
+
+msgid "Biriktirgan fayl"
+msgstr "Прикрепленный файл"
+
+msgid "Fayl yo'q"
+msgstr "Файл отсутствует"
+
+msgid "Chat"
+msgstr "Чат"
+
+msgid "Xabar yozing..."
+msgstr "Напишите сообщение..."
+
+msgid "Yuborish"
+msgstr "Отправить"
+
+msgid "Holat o'zgartirish"
+msgstr "Изменить статус"
+
+msgid "Yangi holat"
+msgstr "Новый статус"
+
+msgid "Mas'ul texnikni belgilash"
+msgstr "Назначить ответственного специалиста"
+
+msgid "Texnik tanlang"
+msgstr "Выберите специалиста"
+
+msgid "Belgilash"
+msgstr "Назначить"
+
+msgid "Muammoni baholang"
+msgstr "Оцените решение проблемы"
+
+msgid "Bahoingiz"
+msgstr "Ваша оценка"
+
+msgid "Izoh (ixtiyoriy)"
+msgstr "Комментарий (необязательно)"
+
+msgid "Qayta ochish"
+msgstr "Переоткрыть"
+
+msgid "Tarix"
+msgstr "История"
+
+msgid "Audit log"
+msgstr "Журнал аудита"
+
+# ============================================
+# ДЕЙСТВИЯ И ИСТОРИЯ ОБРАЩЕНИЯ
+# ============================================
+
+msgid "Murojaat yaratildi"
+msgstr "Обращение создано"
+
+msgid "Status o'zgartirildi"
+msgstr "Статус изменен"
+
+msgid "Mas'ul texnik belgilandi"
+msgstr "Назначен ответственный специалист"
+
+msgid "Mas'ul texnik o'zgartirildi"
+msgstr "Ответственный специалист изменен"
+
+msgid "Xabar yuborildi"
+msgstr "Сообщение отправлено"
+
+msgid "Murojaat qayta ochildi"
+msgstr "Обращение переоткрыто"
+
+msgid "Murojaat baholandi"
+msgstr "Обращение оценено"
+
+msgid "Fayl biriktirildi"
+msgstr "Файл прикреплен"
+
+# ============================================
+# ФОРМЫ И КНОПКИ
+# ============================================
+
+msgid "Bekor qilish"
+msgstr "Отменить"
+
+msgid "Saqlash"
+msgstr "Сохранить"
+
+msgid "O'zgartirish"
+msgstr "Изменить"
+
+msgid "Qidiruv"
+msgstr "Поиск"
+
+msgid "Yangi murojaat yaratish"
+msgstr "Создать новое обращение"
+
+msgid "Tizimni tanlang"
+msgstr "Выберите систему"
+
+msgid "Muammo haqida batafsil yozing..."
+msgstr "Подробно опишите проблему..."
+
+msgid "Fayl biriktirish"
+msgstr "Прикрепить файл"
+
+msgid "ixtiyoriy"
+msgstr "необязательно"
+
+msgid "Ruxsat etilgan formatlar: PDF, DOC, DOCX, JPG, PNG, ZIP"
+msgstr "Разрешенные форматы: PDF, DOC, DOCX, JPG, PNG, ZIP"
+
+# ============================================
+# ПРОФИЛЬ
+# ============================================
+
+msgid "Mening profilim"
+msgstr "Мой профиль"
+
+msgid "Profil ma'lumotlari"
+msgstr "Данные профиля"
+
+msgid "Shaxsiy ma'lumotlar"
+msgstr "Личные данные"
+
+msgid "Familiya"
+msgstr "Фамилия"
+
+msgid "Ism"
+msgstr "Имя"
+
+msgid "Sharif"
+msgstr "Отчество"
+
+msgid "Tashkiliy ma'lumotlar"
+msgstr "Организационные данные"
+
+msgid "Hududiy bo'lim"
+msgstr "Территориальное подразделение"
+
+msgid "Lavozim"
+msgstr "Должность"
+
+msgid "Telefon"
+msgstr "Телефон"
+
+msgid "Sozlamalar"
+msgstr "Настройки"
+
+msgid "Til"
+msgstr "Язык"
+
+msgid "Avatar"
+msgstr "Аватар"
+
+msgid "Parolni o'zgartirish"
+msgstr "Изменить пароль"
+
+msgid "Joriy parol"
+msgstr "Текущий пароль"
+
+msgid "Yangi parol"
+msgstr "Новый пароль"
+
+msgid "Yangi parolni tasdiqlang"
+msgstr "Подтвердите новый пароль"
+
+msgid "Kamida 6 belgidan iborat bo'lishi kerak"
+msgstr "Должен содержать минимум 6 символов"
+
+msgid "Belgilanmagan"
+msgstr "Не указано"
+
+msgid "Ro'yxatdan o'tgan"
+msgstr "Зарегистрирован"
+
+msgid "Viloyat majburiy! Murojaat yaratish uchun viloyatni tanlang."
+msgstr "Область обязательна! Выберите область для создания обращения."
+
+# ============================================
+# ВХОД И РЕГИСТРАЦИЯ
+# ============================================
+
+msgid "Tizimga kirish"
+msgstr "Вход в систему"
+
+msgid "Ro'yxatdan o'tish"
+msgstr "Регистрация"
+
+msgid "Login"
+msgstr "Логин"
+
+msgid "Parol"
+msgstr "Пароль"
+
+msgid "Meni eslab qol"
+msgstr "Запомнить меня"
+
+msgid "Kirish"
+msgstr "Войти"
+
+msgid "Hali ro'yxatdan o'tmaganmisiz?"
+msgstr "Еще не зарегистрированы?"
+
+msgid "Ro'yxatdan o'ting"
+msgstr "Зарегистрируйтесь"
+
+msgid "Allaqachon ro'yxatdan o'tganmisiz?"
+msgstr "Уже зарегистрированы?"
+
+msgid "Tizimga kiring"
+msgstr "Войти в систему"
+
+msgid "Parolni tasdiqlang"
+msgstr "Подтвердите пароль"
+
+# ============================================
+# ПАНЕЛЬ АДМИНИСТРАТОРА
+# ============================================
+
+msgid "Admin Dashboard"
+msgstr "Панель администратора"
+
+msgid "Tizimlar bo'yicha"
+msgstr "По системам"
+
+msgid "Viloyatlar bo'yicha"
+msgstr "По областям"
+
+msgid "Texniklar bo'yicha baholash"
+msgstr "Оценка по специалистам"
+
+msgid "Yulduzlar"
+msgstr "Звезды"
+
+msgid "Ma'lumot yo'q"
+msgstr "Данные отсутствуют"
+
+msgid "Dan"
+msgstr "С"
+
+msgid "Gacha"
+msgstr "По"
+
+# ============================================
+# СПИСОК СОТРУДНИКОВ (АДМИНИСТРАТОР)
+# ============================================
+
+msgid "Xodimlar ro'yxati"
+msgstr "Список сотрудников"
+
+msgid "Filtrlash va qidiruv"
+msgstr "Фильтрация и поиск"
+
+msgid "Ism, familiya yoki login..."
+msgstr "Имя, фамилия или логин..."
+
+msgid "Barcha rollar"
+msgstr "Все роли"
+
+msgid "Barcha viloyatlar"
+msgstr "Все области"
+
+msgid "F.I.Sh"
+msgstr "Ф.И.О"
+
+msgid "Rol"
+msgstr "Роль"
+
+msgid "Aktiv"
+msgstr "Активен"
+
+msgid "Bloklangan"
+msgstr "Заблокирован"
+
+msgid "Rolni o'zgartirish"
+msgstr "Изменить роль"
+
+msgid "Yangi rol"
+msgstr "Новая роль"
+
+msgid "Diqqat! Rolni o'zgartirish foydalanuvchi ruxsatlarini darhol o'zgartiradi."
+msgstr "Внимание! Изменение роли немедленно изменит права пользователя."
+
+msgid "Xodimlar topilmadi"
+msgstr "Сотрудники не найдены"
+
+msgid "Qidiruv bo'yicha natija yo'q"
+msgstr "По запросу ничего не найдено"
+
+# ============================================
+# ОТВЕТСТВЕННЫЕ ПО СИСТЕМАМ
+# ============================================
+
+msgid "Tizimlar bo'yicha mas'ul xodimlar"
+msgstr "Ответственные сотрудники по системам"
+
+msgid "Bu ro'yxatda sizning viloyatingiz"
+msgstr "В этом списке для вашей области"
+
+msgid "bo'yicha har bir tizim uchun mas'ul adminlar va texnik xodimlar ko'rsatilgan."
+msgstr "указаны ответственные администраторы и технические специалисты для каждой системы."
+
+msgid "Mas'ul admin"
+msgstr "Ответственный администратор"
+
+msgid "Mas'ul texnik xodimlar"
+msgstr "Ответственные технические специалисты"
+
+msgid "Mas'ul admin belgilanmagan"
+msgstr "Ответственный администратор не назначен"
+
+msgid "Mas'ul texnik xodim belgilanmagan"
+msgstr "Ответственный специалист не назначен"
+
+msgid "Respublika"
+msgstr "Республика"
+
+msgid "Tizimlar topilmadi"
+msgstr "Системы не найдены"
+
+msgid "Hozirda faol tizimlar mavjud emas"
+msgstr "В настоящее время активные системы отсутствуют"
+
+# ============================================
+# УВЕДОМЛЕНИЯ
+# ============================================
+
+msgid "Barcha bildirishnomalar"
+msgstr "Все уведомления"
+
+msgid "Bildirishnomalar yo'q"
+msgstr "Нет уведомлений"
+
+msgid "Sizda hali bildirishnomalar mavjud emas"
+msgstr "У вас пока нет уведомлений"
+
+msgid "Yangi murojaat yaratildi"
+msgstr "Создано новое обращение"
+
+msgid "Sizga yangi murojaat biriktirildi"
+msgstr "Вам назначено новое обращение"
+
+msgid "Murojaat holati o'zgartirildi"
+msgstr "Статус обращения изменен"
+
+msgid "Yangi xabar"
+msgstr "Новое сообщение"
+
+msgid "Murojaatingizga yangi xabar qoldirildi"
+msgstr "К вашему обращению оставлено новое сообщение"
+
+msgid "Baholash so'rovi"
+msgstr "Запрос на оценку"
+
+msgid "Iltimos murojaatingizni baholang"
+msgstr "Пожалуйста, оцените ваше обращение"
+
+# ============================================
+# СООБЩЕНИЯ И ОПОВЕЩЕНИЯ
+# ============================================
+
+msgid "Ro'yxatdan o'tdingiz! Endi tizimga kirishingiz mumkin."
+msgstr "Вы зарегистрированы! Теперь вы можете войти в систему."
+
+msgid "Xush kelibsiz! Ro'yxatdan muvaffaqiyatli o'tdingiz."
+msgstr "Добро пожаловать! Вы успешно зарегистрировались."
+
+msgid "Til muvaffaqiyatli o'zgartirildi."
+msgstr "Язык успешно изменен."
+
+msgid "Murojaat muvaffaqiyatli yuborildi!"
+msgstr "Обращение успешно отправлено!"
+
+msgid "Parol muvaffaqiyatli o'zgartirildi."
+msgstr "Пароль успешно изменен."
+
+msgid "Profil ma'lumotlari yangilandi."
+msgstr "Данные профиля обновлены."
+
+msgid "Holat muvaffaqiyatli o'zgartirildi."
+msgstr "Статус успешно изменен."
+
+msgid "Baholash uchun rahmat!"
+msgstr "Спасибо за оценку!"
+
+msgid "Murojaat qayta ochildi."
+msgstr "Обращение переоткрыто."
+
+msgid "Profilingizda viloyat belgilanmagan. Iltimos profilni to'ldiring."
+msgstr "В вашем профиле не указана область. Пожалуйста, заполните профиль."
+
+# ============================================
+# ПАНЕЛЬ ТЕХНИЧЕСКОГО СПЕЦИАЛИСТА
+# ============================================
+
+msgid "Sizga biriktirilgan barcha murojaatlar ro'yxati. Muammolarni tez hal qiling!"
+msgstr "Список всех назначенных вам обращений. Решайте проблемы быстро!"
+
+msgid "Kutilmoqda"
+msgstr "Ожидается"
+
+msgid "Bugun hal qilindi"
+msgstr "Решено сегодня"
+
+msgid "Murojaatlar ro'yxati"
+msgstr "Список обращений"
+
+# ============================================
+# ПУСТЫЕ СОСТОЯНИЯ
+# ============================================
+
+msgid "Hech narsa topilmadi"
+msgstr "Ничего не найдено"
+
+msgid "Ma'lumotlar yo'q"
+msgstr "Данные отсутствуют"
+
+msgid "Texnik muammoni batafsil tavsiflang"
+msgstr "Подробно опишите техническую проблему"
+
+msgid "Ushbu tizim bo'yicha sizning viloyatingiz mas'ullari:"
+msgstr "Ответственные по данной системе для вашей области:"
+
+msgid "Mas'ul"
+msgstr "Ответственный"
+
+msgid "Murojaat ma'lumotlari"
+msgstr "Информация о приложении"
+
+
+
+msgid "Murojaat tarixi"
+msgstr "История заявок"
+
+
+msgid "Mas'ul xodim o'zgartirildi"
+msgstr "Изменился ответственный сотрудник"
+
+msgid "Yangi xabar qo'shildi"
+msgstr "Добавлено новое сообщение"
+
+msgid "Status o'zgartirildi: Yangi → Jarayonda "
+msgstr "Статус изменен: Новый → В процессе"
+
+msgid "Tanlang"
+msgstr "Выбирать"
+
+
+msgid "Muloqot"
+msgstr "Коммуникация"
+
+
+msgid "Mas'ul o'zgartirish"
+msgstr "Ответственные изменения"
+
+
+
+msgid "Bu sahifada barcha texnik murojaatlaringizni ko'rishingiz va yangilarini yaratishingiz mumkin."
+msgstr "На этой странице вы можете просмотреть все ваши технические запросы и создать новые."
+
+
+
+msgid "Barcha tizimlar"
+msgstr "Все системы"
+
+
+msgid "Barcha holatlar"
+msgstr "Все случаи"
+
+msgid "Barcha ustuvorliklar"
+msgstr "Все приоритеты"
+
+
+msgid "Yangi xabar qo'shild"
+msgstr "Добавлено новое сообщение"
+
+msgid "Rad etilgan"
+msgstr "Отклоненный"
+
+msgid "Login va parolingizni kiriting"
+msgstr "Введите логин и пароль."
+
+msgid "Tizimdan chiqdingiz"
+msgstr "Вы вышли из системы"
+
+
+msgid "IIV Texnik Yordam Tizimi"
+msgstr "Система технической поддержки МВД"
+
+msgid "Bu sahifa orqali IIO xodimlari har qanday tizimlarda uchraydigan muammolar (tizim ishlamaslik holatlari, login parol olish, tarmoq uzilish va h.k.) bo'yicha texnik yordam olishlari mumkin!"
+msgstr "Через эту страницу сотрудники IIO могут получить техническую поддержку по любым возникшим проблемам в любых системах (сбои системы, получение логина и пароля, сбои в сети и т. д.)!"
+
+msgid "Tez va samarali yechimlar"
+msgstr "Быстрые и эффективные решения"
+
+msgid "24/7 texnik yordam"
+msgstr "Круглосуточная техническая поддержка"
+
+msgid "Barcha tizimlar bir joyda"
+msgstr "Все системы в одном месте"
+
+
+msgid "Ma'lumotlaringizni to'ldiring"
+msgstr "Заполните свои данные."
+
+msgid "Avatar (ixtiyoriy)"
+msgstr "Аватар (необязательно)"
+
+msgid "Hisobingiz yo'qmi?"
+msgstr "У вас нет учетной записи?"
+
+msgid "Hisobingiz bormi?"
+msgstr "У вас есть аккаунт?"
+
+msgid "Tizimdan chiqdingiz."
+msgstr "Вы вышли из системы."

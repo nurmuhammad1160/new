@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ ticket.get_ticket_number }} - {% trans "Murojaat tafsilotlari" %}{% endblock %}
+
+{% block page_title %}{{ ticket.get_ticket_number }}{% endblock %}
+
+{% block content %}
+
+<div class="ticket-detail-layout">
+    <!-- Left Side - Ticket Info -->
+    <div class="ticket-info-section">
+        <!-- Ticket Header -->
+        <div class="card">
+            <div class="ticket-header">
+                <div>
+                    <h2>{{ ticket.get_ticket_number }}</h2>
+                    <span class="status-badge status-{{ ticket.status }}">
+                        {{ ticket.get_status_display }}
+                    </span>
+                    <span class="priority-badge priority-{{ ticket.priority }}">
+                        ● {{ ticket.get_priority_display }}
+                    </span>
+                </div>
+                <div class="ticket-actions">
+                    {% if user == ticket.user and ticket.status == 'resolved' %}
+                    <form method="post" action="{% url 'tickets:reopen_ticket' ticket.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary" onclick="return confirm('{% trans "Murojaatni qayta ochmoqchimisiz?" %}')">
+                            🔄 {% trans "Qayta ochish" %}
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    {% if user.is_admin %}
+                    <button class="btn btn-secondary" onclick="openAssignModal()">
+                        👤 {% trans "Mas'ul o'zgartirish" %}
+                    </button>
+                    {% endif %}
+                    
+                    {% if user == ticket.assigned_to or user.is_admin %}
+                    <button class="btn btn-primary" onclick="openStatusModal()">
+                        ⚙️ {% trans "Holat o'zgartirish" %}
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ticket Details -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 class="card-title">{% trans "Murojaat ma'lumotlari" %}</h3>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">{% trans "Foydalanuvchi" %}</span>
+                    <span class="info-value">{{ ticket.user.get_full_name }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">{% trans "Tizim" %}</span>
+                    <span class="info-value">{{ ticket.system.name }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">{% trans "Viloyat" %}</span>
+                    <span class="info-value">{{ ticket.region.name }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">{% trans "Mas'ul xodim" %}</span>
+                    <span class="info-value">
+                        {% if ticket.assigned_to %}
+                            {{ ticket.assigned_to.get_full_name }}
+                        {% else %}
+                            <span style="color: var(--text-muted);">{% trans "Belgilanmagan" %}</span>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">{% trans "Yaratilgan" %}</span>
+                    <span class="info-value">{{ ticket.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">{% trans "Yangilangan" %}</span>
+                    <span class="info-value">{{ ticket.updated_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                
+                {% if ticket.rating %}
+                <div class="info-item">
+                    <span class="info-label">{% trans "Baholash" %}</span>
+                    <span class="info-value">
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                <span class="star {% if forloop.counter <= ticket.rating %}filled{% endif %}">★</span>
+                            {% endfor %}
+                        </div>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="info-item" style="margin-top: 20px;">
+                <span class="info-label">{% trans "Muammo ta'rifi" %}</span>
+                <p class="ticket-description">{{ ticket.description }}</p>
+            </div>
+            
+            {% if ticket.attachment %}
+            <div class="info-item">
+                <span class="info-label">{% trans "Biriktirma" %}</span>
+                <a href="{{ ticket.attachment.url }}" target="_blank" class="attachment-link">
+                    📎 {% trans "Faylni ko'rish" %}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Rating Form -->
+        {% if rating_form %}
+        <div class="card" style="margin-top: 20px;">
+            <h3 class="card-title">{% trans "Murojaatni baholash" %}</h3>
+            <p class="text-muted">{% trans "Yechim to'g'ri bo'ldimi? Iltimos baholang." %}</p>
+            
+            <form method="post" action="{% url 'tickets:rate_ticket' ticket.pk %}">
+                {% csrf_token %}
+                <div class="rating-form">
+                    <div class="rating-stars-input">
+                        {% for i in "12345" %}
+                        <input type="radio" name="rating" value="{{ forloop.counter }}" id="star{{ forloop.counter }}" required>
+                        <label for="star{{ forloop.counter }}">★</label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">{% trans "Izoh" %} ({% trans "ixtiyoriy" %})</label>
+                        <textarea name="rating_comment" class="form-textarea" rows="3" placeholder="{% trans 'Qo\'shimcha izoh...' %}"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        {% trans "Baholashni yuborish" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        
+        <!-- Audit History -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 class="card-title">{% trans "Murojaat tarixi" %}</h3>
+            
+            <div class="timeline">
+                {% for item in history %}
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">{{ item.timestamp|date:"d.m.Y H:i" }}</div>
+                        <div class="timeline-text">
+                            <strong>{{ item.changed_by.get_full_name }}</strong>: {{ item.message }}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">{% trans "Tarix mavjud emas" %}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Chat -->
+    <div class="chat-section">
+        <div class="card chat-card">
+            <div class="chat-header">
+                <h3>{% trans "Muloqot" %}</h3>
+                <span class="chat-count">{{ messages.count }} {% trans "xabar" %}</span>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                {% for msg in messages %}
+                <div class="chat-message {% if msg.sender == user %}own-message{% endif %}">
+                    <div class="message-header">
+                        <strong>{{ msg.sender.get_full_name }}</strong>
+                        <span class="message-time">{{ msg.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="message-body">
+                        {{ msg.message }}
+                        {% if msg.attachment %}
+                        <div class="message-attachment">
+                            <a href="{{ msg.attachment.url }}" target="_blank">
+                                📎 {% trans "Biriktirma" %}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-messages">
+                    <p>{% trans "Hali xabarlar yo'q" %}</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="chat-input-section">
+                <form method="post" action="{% url 'tickets:send_message' ticket.pk %}" enctype="multipart/form-data" id="chatForm">
+                    {% csrf_token %}
+                    <div class="chat-input-wrapper">
+                        <textarea name="message" class="chat-input" placeholder="{% trans 'Xabar yozing...' %}" rows="2" required></textarea>
+                        <input type="file" name="attachment" id="fileInput" style="display: none;">
+                        <button type="button" class="btn-attachment" onclick="document.getElementById('fileInput').click()">
+                            📎
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-send">
+                        {% trans "Yuborish" %} →
+                    </button>
+                </form>
+                <div id="fileName" class="file-name"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Change Modal -->
+{% if user == ticket.assigned_to or user.is_admin %}
+<div class="modal" id="statusModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h3>{% trans "Holat o'zgartirish" %}</h3>
+            <button class="modal-close" onclick="closeStatusModal()">×</button>
+        </div>
+        <form method="post" action="{% url 'tickets:change_ticket_status' ticket.pk %}">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">{% trans "Yangi holat" %}</label>
+                    <select name="status" class="form-select" required>
+                        {% if ticket.status == 'new' %}
+                            <option value="in_progress">{% trans "Jarayonda" %}</option>
+                            <option value="rejected">{% trans "Rad etildi" %}</option>
+                        {% elif ticket.status == 'in_progress' or ticket.status == 'reopened' %}
+                            <option value="pending_approval">{% trans "Hal qilindi (kutilmoqda)" %}</option>
+                            <option value="rejected">{% trans "Rad etildi" %}</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">{% trans "Bekor qilish" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Saqlash" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Assign Modal -->
+{% if user.is_admin %}
+<div class="modal" id="assignModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h3>{% trans "Mas'ul xodim" %}</h3>
+            <button class="modal-close" onclick="closeAssignModal()">×</button>
+        </div>
+        <form method="post" action="{% url 'tickets:assign_ticket' ticket.pk %}">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">{% trans "Texnik xodim" %}</label>
+                    <select name="assigned_to" class="form-select" required>
+                        <option value="">{% trans "Tanlang" %}</option>
+                        {% for tech in available_technicians %}
+                        <option value="{{ tech.pk }}" {% if tech == ticket.assigned_to %}selected{% endif %}>
+                            {{ tech.get_full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAssignModal()">{% trans "Bekor qilish" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Saqlash" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.ticket-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 500px;
+    gap: 30px;
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.ticket-header h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.ticket-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+.ticket-description {
+    background: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    white-space: pre-wrap;
+}
+
+.attachment-link {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.attachment-link:hover {
+    text-decoration: underline;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 25px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -30px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    border: 3px solid var(--bg-secondary);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 17px;
+    bottom: -25px;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-time {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+
+.timeline-text {
+    font-size: 14px;
+}
+
+/* Chat */
+.chat-card {
+    height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.chat-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.chat-count {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chat-message {
+    background: var(--bg-tertiary);
+    padding: 12px 15px;
+    border-radius: var(--radius-sm);
+    max-width: 85%;
+}
+
+.chat-message.own-message {
+    background: rgba(59, 130, 246, 0.1);
+    margin-left: auto;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.message-time {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.message-body {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.message-attachment {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.message-attachment a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.no-messages {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.chat-input-section {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    resize: none;
+}
+
+.btn-attachment {
+    padding: 10px 15px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.btn-send {
+    width: 100%;
+}
+
+.file-name {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+}
+
+/* Rating Form */
+.rating-stars-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.rating-stars-input input {
+    display: none;
+}
+
+.rating-stars-input label {
+    font-size: 32px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.rating-stars-input input:checked ~ label,
+.rating-stars-input label:hover,
+.rating-stars-input label:hover ~ label {
+    color: #fbbf24;
+}
+
+.modal-sm .modal-content {
+    max-width: 400px;
+}
+
+@media (max-width: 1200px) {
+    .ticket-detail-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .chat-card {
+        height: 500px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scroll chat to bottom
+const chatMessages = document.getElementById('chatMessages');
+if (chatMessages) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// File input change
+document.getElementById('fileInput')?.addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name;
+    if (fileName) {
+        document.getElementById('fileName').textContent = '📎 ' + fileName;
+    }
+});
+
+function openStatusModal() {
+    document.getElementById('statusModal').classList.add('active');
+}
+
+function closeStatusModal() {
+    document.getElementById('statusModal').classList.remove('active');
+}
+
+function openAssignModal() {
+    document.getElementById('assignModal').classList.add('active');
+}
+
+function closeAssignModal() {
+    document.getElementById('assignModal').classList.remove('active');
+}
+
+// Auto-submit chat form on Enter
+document.querySelector('.chat-input')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chatForm').submit();
+    }
+});
+</script>
+{% endblock %}

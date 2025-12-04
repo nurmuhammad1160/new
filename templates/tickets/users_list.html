@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Xodimlar ro'yxati" %}{% endblock %}
+
+{% block page_title %}{% trans "Xodimlar ro'yxati" %}{% endblock %}
+
+{% block content %}
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 30px;">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Filtrlash va qidiruv" %}</h3>
+    </div>
+    <form method="get" class="filter-form">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label class="form-label">{% trans "Qidiruv" %}</label>
+                <input type="text" name="search" class="form-input" placeholder="{% trans 'Ism, familiya yoki login...' %}" value="{{ request.GET.search }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Rol" %}</label>
+                <select name="role" class="form-select">
+                    <option value="">{% trans "Barcha rollar" %}</option>
+                    <option value="user" {% if request.GET.role == 'user' %}selected{% endif %}>{% trans "Oddiy foydalanuvchi" %}</option>
+                    <option value="technician" {% if request.GET.role == 'technician' %}selected{% endif %}>{% trans "Texnik xodim" %}</option>
+                    <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>{% trans "Admin" %}</option>
+                    <option value="superadmin" {% if request.GET.role == 'superadmin' %}selected{% endif %}>{% trans "Bosh admin" %}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Viloyat" %}</label>
+                <select name="region" class="form-select">
+                    <option value="">{% trans "Barcha viloyatlar" %}</option>
+                    {% for region in all_regions %}
+                    <option value="{{ region.id }}" {% if request.GET.region == region.id|stringformat:"s" %}selected{% endif %}>
+                        {{ region.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    🔍 {% trans "Qidiruv" %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{% trans "Xodimlar" %} ({{ users.count }})</h3>
+    </div>
+    
+    {% if users %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Avatar" %}</th>
+                    <th>{% trans "F.I.Sh" %}</th>
+                    <th>{% trans "Login" %}</th>
+                    <th>{% trans "Rol" %}</th>
+                    <th>{% trans "Viloyat" %}</th>
+                    <th>{% trans "Telefon" %}</th>
+                    <th>{% trans "Holat" %}</th>
+                    <th>{% trans "Ro'yxatdan o'tgan" %}</th>
+                    <th>{% trans "Harakatlar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_item in users %}
+                <tr>
+                    <td>
+                        {% if user_item.avatar %}
+                            <img src="{{ user_item.avatar.url }}" alt="Avatar" class="table-avatar">
+                        {% else %}
+                            <div class="table-avatar-placeholder">
+                                {{ user_item.first_name.0 }}{{ user_item.last_name.0 }}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ user_item.get_full_name }}</strong><br>
+                        <small class="text-muted">{{ user_item.position|default:"-" }}</small>
+                    </td>
+                    <td>{{ user_item.username }}</td>
+                    <td>
+                        <span class="role-badge role-{{ user_item.role }}">
+                            {{ user_item.get_role_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if user_item.region %}
+                            {{ user_item.region.name }}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user_item.phone|default:"-" }}</td>
+                    <td>
+                        {% if user_item.is_active %}
+                            <span class="badge badge-success">{% trans "Aktiv" %}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{% trans "Bloklangan" %}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user_item.date_joined|date:"d.m.Y" }}</td>
+                    <td>
+                        <button class="btn-icon" onclick="openRoleModal({{ user_item.id }}, '{{ user_item.role }}')" title="{% trans 'Rolni o\'zgartirish' %}">
+                            ⚙️
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>{% trans "Xodimlar topilmadi" %}</h3>
+        <p>{% trans "Qidiruv bo'yicha natija yo'q" %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Change Role Modal -->
+<div class="modal" id="roleModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h3>{% trans "Rolni o'zgartirish" %}</h3>
+            <button class="modal-close" onclick="closeRoleModal()">×</button>
+        </div>
+        <form method="post" id="roleForm" action="">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">{% trans "Yangi rol" %}</label>
+                    <select name="role" class="form-select" id="roleSelect" required>
+                        <option value="user">{% trans "Oddiy foydalanuvchi" %}</option>
+                        <option value="technician">{% trans "Texnik xodim" %}</option>
+                        <option value="admin">{% trans "Admin" %}</option>
+                        {% if user.is_superadmin %}
+                        <option value="superadmin">{% trans "Bosh admin" %}</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="alert alert-warning" style="margin-top: 15px; font-size: 13px;">
+                    ⚠️ {% trans "Diqqat! Rolni o'zgartirish foydalanuvchi ruxsatlarini darhol o'zgartiradi." %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRoleModal()">
+                    {% trans "Bekor qilish" %}
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    💾 {% trans "Saqlash" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.table-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.table-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.role-user {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.role-technician {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.role-admin {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.role-superadmin {
+    background: rgba(147, 51, 234, 0.1);
+    color: #9333ea;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--accent-success);
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--accent-danger);
+}
+
+.btn-icon {
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: var(--transition);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 16px;
+}
+
+.btn-icon:hover {
+    background: var(--bg-tertiary);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 600px;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-sm .modal-content {
+    max-width: 450px;
+}
+
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-close {
+    font-size: 28px;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentUserId = null;
+
+function openRoleModal(userId, currentRole) {
+    currentUserId = userId;
+    const form = document.getElementById('roleForm');
+    form.action = `/tickets/users/${userId}/change-role/`;
+    
+    const select = document.getElementById('roleSelect');
+    select.value = currentRole;
+    
+    document.getElementById('roleModal').classList.add('active');
+}
+
+function closeRoleModal() {
+    document.getElementById('roleModal').classList.remove('active');
+}
+
+// Close modal on outside click
+document.getElementById('roleModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRoleModal();
+    }
+});
+</script>
+{% endblock %}

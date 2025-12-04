@@ -1,0 +1,622 @@
+# Uzbek Cyrillic translations for IIV Support
+msgid ""
+msgstr ""
+"Project-Id-Version: IIV Support 1.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: uz_Cyrl\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# ============================================
+# УМУМИЙ / COMMON
+# ============================================
+
+msgid "IIO xodimlari uchun yagona texnik yordam portali"
+msgstr "ИИО ходимлари учун ягона техник ёрдам портали"
+
+msgid "Dashboard"
+msgstr "Бошқарув панели"
+
+msgid "Mening murojaatlarim"
+msgstr "Менинг мурожаатларим"
+
+msgid "Barcha murojaatlar"
+msgstr "Барча мурожаатлар"
+
+msgid "Xodimlar"
+msgstr "Ходимлар"
+
+msgid "Tizimlar bo'yicha mas'ullar"
+msgstr "Тизимлар бўйича масъуллар"
+
+msgid "Bildirishnomalar"
+msgstr "Билдиришномалар"
+
+msgid "Profil"
+msgstr "Профил"
+
+msgid "Chiqish"
+msgstr "Чиқиш"
+
+msgid "Yangi murojaat"
+msgstr "Янги мурожаат"
+
+# ============================================
+# TICKET СТАТУСЛАРИ
+# ============================================
+
+msgid "Yangi"
+msgstr "Янги"
+
+msgid "Jarayonda"
+msgstr "Жараёнда"
+
+msgid "Hal qilindi (kutilmoqda)"
+msgstr "Ҳал қилинди (кутилмоқда)"
+
+msgid "Hal qilindi"
+msgstr "Ҳал қилинди"
+
+msgid "Rad etildi"
+msgstr "Рад этилди"
+
+msgid "Qayta ochildi"
+msgstr "Қайта очилди"
+
+# ============================================
+# УСТУВОРЛИК / PRIORITY
+# ============================================
+
+msgid "Oddiy"
+msgstr "Оддий"
+
+msgid "O'rtacha"
+msgstr "Ўртача"
+
+msgid "Yuqori"
+msgstr "Юқори"
+
+# ============================================
+# ФОЙДАЛАНУВЧИ РОЛЛАРИ
+# ============================================
+
+msgid "Oddiy foydalanuvchi"
+msgstr "Оддий фойдаланувчи"
+
+msgid "Texnik xodim"
+msgstr "Техник ходим"
+
+msgid "Admin"
+msgstr "Админ"
+
+msgid "Bosh admin"
+msgstr "Бош админ"
+
+# ============================================
+# НАВИГАЦИЯ ВА МЕНЮ
+# ============================================
+
+msgid "Barchasini o'qilgan qilish"
+msgstr "Барчасини ўқилган қилиш"
+
+msgid "Yangi bildirishnomalar yo'q"
+msgstr "Янги билдиришномалар йўқ"
+
+msgid "Barchasini ko'rish"
+msgstr "Барчасини кўриш"
+
+# ============================================
+# DASHBOARD
+# ============================================
+
+msgid "Assalomu alaykum"
+msgstr "Ассалому алайкум"
+
+msgid "Bugungi murojaatlar"
+msgstr "Бугунги мурожаатлар"
+
+msgid "Jami murojaatlar"
+msgstr "Жами мурожаатлар"
+
+msgid "Bugungi umumiy murojaatlar soni"
+msgstr "Бугунги умумий мурожаатлар сони"
+
+msgid "Hal qilingan"
+msgstr "Ҳал қилинган"
+
+msgid "Qayta ochilgan"
+msgstr "Қайта очилган"
+
+msgid "O'rtacha baholash"
+msgstr "Ўртача баҳолаш"
+
+msgid "Filtrlash"
+msgstr "Фильтрлаш"
+
+msgid "Tizim"
+msgstr "Тизим"
+
+msgid "Holat"
+msgstr "Ҳолат"
+
+msgid "Ustuvorlik"
+msgstr "Устуворлик"
+
+msgid "Sana/Vaqt"
+msgstr "Сана/Вақт"
+
+msgid "Foydalanuvchi"
+msgstr "Фойдаланувчи"
+
+msgid "Viloyat"
+msgstr "Вилоят"
+
+msgid "Mas'ul xodim"
+msgstr "Масъул ходим"
+
+msgid "Baholash"
+msgstr "Баҳолаш"
+
+msgid "Baho"
+msgstr "Баҳо"
+
+msgid "Harakatlar"
+msgstr "Ҳаракатлар"
+
+msgid "Ko'rish"
+msgstr "Кўриш"
+
+msgid "Murojaatlar topilmadi"
+msgstr "Мурожаатлар топилмади"
+
+msgid "Hali murojaatlar yo'q."
+msgstr "Ҳали мурожаатлар йўқ."
+
+msgid "Sizga hali murojaatlar biriktirilmagan."
+msgstr "Сизга ҳали мурожаатлар бириктирилмаган."
+
+# ============================================
+# МУРОЖААТ ТАФСИЛОТЛАРИ
+# ============================================
+
+msgid "Murojaat tafsilotlari"
+msgstr "Мурожаат тафсилотлари"
+
+msgid "Umumiy ma'lumotlar"
+msgstr "Умумий маълумотлар"
+
+msgid "Yaratilgan"
+msgstr "Яратилган"
+
+msgid "Yangilangan"
+msgstr "Янгиланган"
+
+msgid "Muammo ta'rifi"
+msgstr "Муаммо таърифи"
+
+msgid "Biriktirgan fayl"
+msgstr "Бириктирган файл"
+
+msgid "Fayl yo'q"
+msgstr "Файл йўқ"
+
+msgid "Chat"
+msgstr "Чат"
+
+msgid "Xabar yozing..."
+msgstr "Хабар ёзинг..."
+
+msgid "Yuborish"
+msgstr "Юбориш"
+
+msgid "Holat o'zgartirish"
+msgstr "Ҳолат ўзгартириш"
+
+msgid "Yangi holat"
+msgstr "Янги ҳолат"
+
+msgid "Mas'ul texnikni belgilash"
+msgstr "Масъул техникни белгилаш"
+
+msgid "Texnik tanlang"
+msgstr "Техник танланг"
+
+msgid "Belgilash"
+msgstr "Белгилаш"
+
+msgid "Muammoni baholang"
+msgstr "Муаммони баҳоланг"
+
+msgid "Bahoingiz"
+msgstr "Баҳоингиз"
+
+msgid "Izoh (ixtiyoriy)"
+msgstr "Изоҳ (ихтиёрий)"
+
+msgid "Qayta ochish"
+msgstr "Қайта очиш"
+
+msgid "Tarix"
+msgstr "Тарих"
+
+msgid "Audit log"
+msgstr "Аудит лог"
+
+# ============================================
+# МУРОЖААТ ҲАРАКАТЛАРИ ВА ТАРИХ
+# ============================================
+
+msgid "Murojaat yaratildi"
+msgstr "Мурожаат яратилди"
+
+msgid "Status o'zgartirildi"
+msgstr "Статус ўзгартирилди"
+
+msgid "Mas'ul texnik belgilandi"
+msgstr "Масъул техник белгиланди"
+
+msgid "Mas'ul texnik o'zgartirildi"
+msgstr "Масъул техник ўзгартирилди"
+
+msgid "Xabar yuborildi"
+msgstr "Хабар юборилди"
+
+msgid "Murojaat qayta ochildi"
+msgstr "Мурожаат қайта очилди"
+
+msgid "Murojaat baholandi"
+msgstr "Мурожаат баҳоланди"
+
+msgid "Fayl biriktirildi"
+msgstr "Файл бириктирилди"
+
+# ============================================
+# ФОРМАЛАР ВА ТУГМАЛАР
+# ============================================
+
+msgid "Bekor qilish"
+msgstr "Бекор қилиш"
+
+msgid "Saqlash"
+msgstr "Сақлаш"
+
+msgid "O'zgartirish"
+msgstr "Ўзгартириш"
+
+msgid "Qidiruv"
+msgstr "Қидирув"
+
+msgid "Yangi murojaat yaratish"
+msgstr "Янги мурожаат яратиш"
+
+msgid "Tizimni tanlang"
+msgstr "Тизимни танланг"
+
+msgid "Muammo haqida batafsil yozing..."
+msgstr "Муаммо ҳақида батафсил ёзинг..."
+
+msgid "Fayl biriktirish"
+msgstr "Файл бириктириш"
+
+msgid "ixtiyoriy"
+msgstr "ихтиёрий"
+
+msgid "Ruxsat etilgan formatlar: PDF, DOC, DOCX, JPG, PNG, ZIP"
+msgstr "Рухсат этилган форматлар: PDF, DOC, DOCX, JPG, PNG, ZIP"
+
+# ============================================
+# ПРОФИЛ
+# ============================================
+
+msgid "Mening profilim"
+msgstr "Менинг профилим"
+
+msgid "Profil ma'lumotlari"
+msgstr "Профил маълумотлари"
+
+msgid "Shaxsiy ma'lumotlar"
+msgstr "Шахсий маълумотлар"
+
+msgid "Familiya"
+msgstr "Фамилия"
+
+msgid "Ism"
+msgstr "Исм"
+
+msgid "Sharif"
+msgstr "Шариф"
+
+msgid "Tashkiliy ma'lumotlar"
+msgstr "Ташкилий маълумотлар"
+
+msgid "Hududiy bo'lim"
+msgstr "Ҳудудий бўлим"
+
+msgid "Lavozim"
+msgstr "Лавозим"
+
+msgid "Telefon"
+msgstr "Телефон"
+
+msgid "Sozlamalar"
+msgstr "Созламалар"
+
+msgid "Til"
+msgstr "Тил"
+
+msgid "Avatar"
+msgstr "Аватар"
+
+msgid "Parolni o'zgartirish"
+msgstr "Паролни ўзгартириш"
+
+msgid "Joriy parol"
+msgstr "Жорий парол"
+
+msgid "Yangi parol"
+msgstr "Янги парол"
+
+msgid "Yangi parolni tasdiqlang"
+msgstr "Янги паролни тасдиқланг"
+
+msgid "Kamida 6 belgidan iborat bo'lishi kerak"
+msgstr "Камида 6 белгидан иборат бўлиши керак"
+
+msgid "Belgilanmagan"
+msgstr "Белгиланмаган"
+
+msgid "Ro'yxatdan o'tgan"
+msgstr "Рўйхатдан ўтган"
+
+msgid "Viloyat majburiy! Murojaat yaratish uchun viloyatni tanlang."
+msgstr "Вилоят мажбурий! Мурожаат яратиш учун вилоятни танланг."
+
+# ============================================
+# КИРИШ ВА РЎЙХАТДАН ЎТИШ
+# ============================================
+
+msgid "Tizimga kirish"
+msgstr "Тизимга кириш"
+
+msgid "Ro'yxatdan o'tish"
+msgstr "Рўйхатдан ўтиш"
+
+msgid "Login"
+msgstr "Логин"
+
+msgid "Parol"
+msgstr "Парол"
+
+msgid "Meni eslab qol"
+msgstr "Мени эслаб қол"
+
+msgid "Kirish"
+msgstr "Кириш"
+
+msgid "Hali ro'yxatdan o'tmaganmisiz?"
+msgstr "Ҳали рўйхатдан ўтмаганмисиз?"
+
+msgid "Ro'yxatdan o'ting"
+msgstr "Рўйхатдан ўтинг"
+
+msgid "Allaqachon ro'yxatdan o'tganmisiz?"
+msgstr "Аллақачон рўйхатдан ўтганмисиз?"
+
+msgid "Tizimga kiring"
+msgstr "Тизимга киринг"
+
+msgid "Parolni tasdiqlang"
+msgstr "Паролни тасдиқланг"
+
+# ============================================
+# АДМИН БОШҚАРУВ ПАНЕЛИ
+# ============================================
+
+msgid "Admin Dashboard"
+msgstr "Админ Бошқарув Панели"
+
+msgid "Tizimlar bo'yicha"
+msgstr "Тизимлар бўйича"
+
+msgid "Viloyatlar bo'yicha"
+msgstr "Вилоятлар бўйича"
+
+msgid "Texniklar bo'yicha baholash"
+msgstr "Техниклар бўйича баҳолаш"
+
+msgid "Texnik xodim"
+msgstr "Техник ходим"
+
+msgid "Yulduzlar"
+msgstr "Юлдузлар"
+
+msgid "Ma'lumot yo'q"
+msgstr "Маълумот йўқ"
+
+msgid "Dan"
+msgstr "Дан"
+
+msgid "Gacha"
+msgstr "Гача"
+
+# ============================================
+# ХОДИМЛАР РЎЙХАТИ (АДМИН)
+# ============================================
+
+msgid "Xodimlar ro'yxati"
+msgstr "Ходимлар рўйхати"
+
+msgid "Filtrlash va qidiruv"
+msgstr "Фильтрлаш ва қидирув"
+
+msgid "Ism, familiya yoki login..."
+msgstr "Исм, фамилия ёки логин..."
+
+msgid "Barcha rollar"
+msgstr "Барча роллар"
+
+msgid "Barcha viloyatlar"
+msgstr "Барча вилоятлар"
+
+msgid "F.I.Sh"
+msgstr "Ф.И.Ш"
+
+msgid "Rol"
+msgstr "Рол"
+
+msgid "Aktiv"
+msgstr "Актив"
+
+msgid "Bloklangan"
+msgstr "Блокланган"
+
+msgid "Rolni o'zgartirish"
+msgstr "Ролни ўзгартириш"
+
+msgid "Yangi rol"
+msgstr "Янги рол"
+
+msgid "Diqqat! Rolni o'zgartirish foydalanuvchi ruxsatlarini darhol o'zgartiradi."
+msgstr "Диққат! Ролни ўзгартириш фойдаланувчи рухсатларини дарҳол ўзгартиради."
+
+msgid "Xodimlar topilmadi"
+msgstr "Ходимлар топилмади"
+
+msgid "Qidiruv bo'yicha natija yo'q"
+msgstr "Қидирув бўйича натижа йўқ"
+
+# ============================================
+# ТИЗИМЛАР БЎЙИЧА МАСЪУЛЛАР
+# ============================================
+
+msgid "Tizimlar bo'yicha mas'ul xodimlar"
+msgstr "Тизимлар бўйича масъул ходимлар"
+
+msgid "Bu ro'yxatda sizning viloyatingiz"
+msgstr "Бу рўйхатда сизнинг вилоятингиз"
+
+msgid "bo'yicha har bir tizim uchun mas'ul adminlar va texnik xodimlar ko'rsatilgan."
+msgstr "бўйича ҳар бир тизим учун масъул админлар ва техник ходимлар кўрсатилган."
+
+msgid "Mas'ul admin"
+msgstr "Масъул админ"
+
+msgid "Mas'ul texnik xodimlar"
+msgstr "Масъул техник ходимлар"
+
+msgid "Mas'ul admin belgilanmagan"
+msgstr "Масъул админ белгиланмаган"
+
+msgid "Mas'ul texnik xodim belgilanmagan"
+msgstr "Масъул техник ходим белгиланмаган"
+
+msgid "Respublika"
+msgstr "Республика"
+
+msgid "Tizimlar topilmadi"
+msgstr "Тизимлар топилмади"
+
+msgid "Hozirda faol tizimlar mavjud emas"
+msgstr "Ҳозирда фаол тизимлар мавжуд эмас"
+
+# ============================================
+# БИЛДИРИШНОМАЛАР
+# ============================================
+
+msgid "Barcha bildirishnomalar"
+msgstr "Барча билдиришномалар"
+
+msgid "Bildirishnomalar yo'q"
+msgstr "Билдиришномалар йўқ"
+
+msgid "Sizda hali bildirishnomalar mavjud emas"
+msgstr "Сизда ҳали билдиришномалар мавжуд эмас"
+
+msgid "Yangi murojaat yaratildi"
+msgstr "Янги мурожаат яратилди"
+
+msgid "Sizga yangi murojaat biriktirildi"
+msgstr "Сизга янги мурожаат бириктирилди"
+
+msgid "Murojaat holati o'zgartirildi"
+msgstr "Мурожаат ҳолати ўзгартирилди"
+
+msgid "Yangi xabar"
+msgstr "Янги хабар"
+
+msgid "Murojaatingizga yangi xabar qoldirildi"
+msgstr "Мурожаатингизга янги хабар қолдирилди"
+
+msgid "Baholash so'rovi"
+msgstr "Баҳолаш сўрови"
+
+msgid "Iltimos murojaatingizni baholang"
+msgstr "Илтимос мурожаатингизни баҳоланг"
+
+# ============================================
+# ХАБАРЛАР ВА ОГОҲЛАНТИРИШЛАР
+# ============================================
+
+msgid "Ro'yxatdan o'tdingiz! Endi tizimga kirishingiz mumkin."
+msgstr "Рўйхатдан ўтдингиз! Энди тизимга киришингиз мумкин."
+
+msgid "Xush kelibsiz! Ro'yxatdan muvaffaqiyatli o'tdingiz."
+msgstr "Хуш келибсиз! Рўйхатдан муваффақиятли ўтдингиз."
+
+msgid "Til muvaffaqiyatli o'zgartirildi."
+msgstr "Тил муваффақиятли ўзгартирилди."
+
+msgid "Murojaat muvaffaqiyatli yuborildi!"
+msgstr "Мурожаат муваффақиятли юборилди!"
+
+msgid "Parol muvaffaqiyatli o'zgartirildi."
+msgstr "Парол муваффақиятли ўзгартирилди."
+
+msgid "Profil ma'lumotlari yangilandi."
+msgstr "Профил маълумотлари янгиланди."
+
+msgid "Holat muvaffaqiyatli o'zgartirildi."
+msgstr "Ҳолат муваффақиятли ўзгартирилди."
+
+msgid "Baholash uchun rahmat!"
+msgstr "Баҳолаш учун раҳмат!"
+
+msgid "Murojaat qayta ochildi."
+msgstr "Мурожаат қайта очилди."
+
+msgid "Profilingizda viloyat belgilanmagan. Iltimos profilni to'ldiring."
+msgstr "Профилингизда вилоят белгиланмаган. Илтимос профилни тўлдиринг."
+
+# ============================================
+# ТЕХНИК БОШҚАРУВ ПАНЕЛИ
+# ============================================
+
+msgid "Sizga biriktirilgan barcha murojaatlar ro'yxati. Muammolarni tez hal qiling!"
+msgstr "Сизга бириктирилган барча мурожаатлар рўйхати. Муаммоларни тез ҳал қилинг!"
+
+msgid "Kutilmoqda"
+msgstr "Кутилмоқда"
+
+msgid "Bugun hal qilindi"
+msgstr "Бугун ҳал қилинди"
+
+msgid "Murojaatlar ro'yxati"
+msgstr "Мурожаатлар рўйхати"
+
+# ============================================
+# БЎШЛИК ҲОЛАТЛАРИ
+# ============================================
+
+msgid "Hech narsa topilmadi"
+msgstr "Ҳеч нарса топилмади"
+
+msgid "Ma'lumotlar yo'q"
+msgstr "Маълумотлар йўқ"
+
+msgid "Texnik muammoni batafsil tavsiflang"
+msgstr "Техник муаммони батафсил тавсифланг"
+
+msgid "Ushbu tizim bo'yicha sizning viloyatingiz mas'ullari:"
+msgstr "Ушбу тизим бўйича сизнинг вилоятингиз масъуллари:"
+EOF
