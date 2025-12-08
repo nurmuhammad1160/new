@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Murojaatlar hisoboti" %}{% endblock %}
+
+{% block page_title %}{% trans "Murojaatlar hisoboti" %}{% endblock %}
+
+{% block content %}
+
+<!-- Back Button -->
+<div class="page-header-with-back">
+    <button class="btn-back" onclick="history.back()">
+        ← {% trans "Orqaga" %}
+    </button>
+    
+    <!-- Export Buttons -->
+    <div class="export-buttons">
+        <form method="get" action="{% url 'reports:generate' %}" style="display: inline;">
+            {% for key, value in request.GET.items %}
+                {% if key != 'export_format' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <input type="hidden" name="export_format" value="pdf">
+            <button type="submit" class="btn btn-danger">
+                <span class="btn-icon">📄</span>
+                PDF
+            </button>
+        </form>
+        
+        <form method="get" action="{% url 'reports:generate' %}" style="display: inline;">
+            {% for key, value in request.GET.items %}
+                {% if key != 'export_format' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <input type="hidden" name="export_format" value="excel">
+            <button type="submit" class="btn btn-success">
+                <span class="btn-icon">📊</span>
+                Excel
+            </button>
+        </form>
+        
+        <form method="get" action="{% url 'reports:generate' %}" style="display: inline;">
+            {% for key, value in request.GET.items %}
+                {% if key != 'export_format' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <input type="hidden" name="export_format" value="csv">
+            <button type="submit" class="btn btn-secondary">
+                <span class="btn-icon">📋</span>
+                CSV
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Card -->
+<div class="card summary-card">
+    <div class="summary-header">
+        <h2>📊 {% trans "Hisobot xulosasi" %}</h2>
+    </div>
+    <div class="summary-grid">
+        <div class="summary-item">
+            <div class="summary-label">{% trans "Jami murojaatlar" %}</div>
+            <div class="summary-value">{{ total_count }}</div>
+        </div>
+        
+        <div class="summary-item">
+            <div class="summary-label">{% trans "Sana oralig'i" %}</div>
+            <div class="summary-value summary-text">
+                {% if filters.date_from and filters.date_to %}
+                    {{ filters.date_from|date:"d.m.Y" }} - {{ filters.date_to|date:"d.m.Y" }}
+                {% else %}
+                    {% trans "Barcha vaqt" %}
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if filters.system %}
+        <div class="summary-item">
+            <div class="summary-label">{% trans "Tizim" %}</div>
+            <div class="summary-value summary-text">{{ filters.system.name }}</div>
+        </div>
+        {% endif %}
+        
+        {% if filters.region %}
+        <div class="summary-item">
+            <div class="summary-label">{% trans "Viloyat" %}</div>
+            <div class="summary-value summary-text">{{ filters.region.name }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tickets Table -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <span class="title-icon">📋</span>
+            {% trans "Murojaatlar ro'yxati" %}
+        </h2>
+        <p class="card-subtitle">
+            {% if total_count > 500 %}
+                ⚠️ {% trans "Ko'rsatilmoqda: birinchi 500 ta" %}
+            {% else %}
+                {% trans "Jami" %}: {{ total_count }}
+            {% endif %}
+        </p>
+    </div>
+    
+    <div class="table-wrapper">
+        <table class="tickets-table">
+            <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "Sana" %}</th>
+                    <th>{% trans "Tizim" %}</th>
+                    <th>{% trans "Viloyat" %}</th>
+                    <th>{% trans "Foydalanuvchi" %}</th>
+                    <th>{% trans "Holat" %}</th>
+                    <th>{% trans "Mas'ul" %}</th>
+                    <th>{% trans "Baho" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td class="td-id">
+                        <a href="{% url 'tickets:ticket_detail' ticket.pk %}" target="_blank">
+                            {{ ticket.get_ticket_number }}
+                        </a>
+                    </td>
+                    <td class="td-date">{{ ticket.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ ticket.system.name }}</td>
+                    <td>{{ ticket.region.name|default:"-" }}</td>
+                    <td>{{ ticket.user.get_full_name }}</td>
+                    <td>
+                        <span class="status-badge status-{{ ticket.status }}">
+                            {{ ticket.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ ticket.assigned_to.get_full_name|default:"-" }}</td>
+                    <td>
+                        {% if ticket.rating %}
+                            {{ ticket.rating }}⭐
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        {% trans "Hech qanday murojaat topilmadi" %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header-with-back {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.btn-back {
+    padding: 12px 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid #10b981;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.summary-card {
+    padding: 30px;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.summary-item {
+    text-align: center;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.summary-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--accent-primary);
+}
+
+.tickets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tickets-table th {
+    padding: 15px 12px;
+    text-align: left;
+    background: var(--bg-tertiary);
+    font-weight: 700;
+}
+
+.tickets-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-new { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.status-in_progress { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.status-resolved { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+</style>
+{% endblock %}

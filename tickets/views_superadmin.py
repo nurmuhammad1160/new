@@ -325,28 +325,33 @@ def superadmin_toggle_user_status(request, user_id):
 @login_required
 @require_superadmin
 def superadmin_reset_password(request, user_id):
-    """Foydalanuvchi parolini o'zgartirish (faqat bosh admin)"""
+    """Foydalanuvchi parolini o'zgartirish (faqat bosh admin) - FIXED"""
     user = get_object_or_404(User, pk=user_id)
     
     if request.method == 'POST':
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
+        # ✅ TO'G'RI FIELD NOMLARI
+        new_password1 = request.POST.get('new_password1')
+        new_password2 = request.POST.get('new_password2')
         
-        if not new_password or len(new_password) < 6:
+        # Validation
+        if not new_password1 or len(new_password1) < 6:
             messages.error(request, _('Parol kamida 6 belgidan iborat bo\'lishi kerak.'))
-            return redirect('tickets:superadmin_user_detail', user_id=user_id)
+            return render(request, 'tickets/superadmin/reset_password.html', {'user_obj': user})
         
-        if new_password != confirm_password:
+        if new_password1 != new_password2:
             messages.error(request, _('Parollar bir xil emas.'))
-            return redirect('tickets:superadmin_user_detail', user_id=user_id)
+            return render(request, 'tickets/superadmin/reset_password.html', {'user_obj': user})
         
-        # Parolni o'rnatish
-        user.set_password(new_password)
+        # ✅ Parolni o'rnatish (to'g'ri usul)
+        user.set_password(new_password1)
         user.save()
         
         messages.success(
             request,
-            _('Foydalanuvchi {} uchun yangi parol o\'rnatildi.').format(user.get_full_name())
+            _('Foydalanuvchi {} uchun yangi parol o\'rnatildi. Endi {} parol bilan kirishi mumkin.').format(
+                user.get_full_name(),
+                new_password1  # Debug uchun (production da olib tashlash kerak!)
+            )
         )
         
         # Notification userga
@@ -531,8 +536,14 @@ def superadmin_audit_logs(request):
     
     # Filter by user
     user_id = request.GET.get('user_id')
+    selected_user_name = ''
     if user_id:
-        logs = logs.filter(changed_by_id=user_id)
+        try:
+            user_obj = User.objects.get(pk=user_id)
+            selected_user_name = user_obj.get_full_name()
+            logs = logs.filter(changed_by_id=user_id)
+        except User.DoesNotExist:
+            pass
     
     # Apply slice at the end
     logs = logs[:200]
@@ -541,6 +552,7 @@ def superadmin_audit_logs(request):
         'logs': logs,
         'action_type': action_type,
         'user_id': user_id,
+        'selected_user_name': selected_user_name,  # ✅ QO'SHILDI
     }
     
     return render(request, 'tickets/superadmin/audit_logs.html', context)
@@ -561,6 +573,43 @@ def superadmin_users_search_ajax(request):
         Q(last_name__icontains=search) |
         Q(username__icontains=search)
     )[:20]
+    
+    results = []
+    for user in users:
+        results.append({
+            'id': user.id,
+            'full_name': user.get_full_name(),
+            'username': user.username,
+            'role': user.get_role_display(),
+            'is_active': user.is_active,
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'results': results
+    })
+
+
+
+@login_required
+@require_superadmin
+def api_users_search(request):
+    """AJAX - foydalanuvchilarni qidirish (audit logs uchun)"""
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse({
+            'success': False,
+            'message': 'Kamida 2 ta belgi kiriting'
+        })
+    
+    # Qidiruv
+    users = User.objects.filter(
+        Q(first_name__icontains=query) |
+        Q(last_name__icontains=query) |
+        Q(middle_name__icontains=query) |
+        Q(username__icontains=query)
+    ).order_by('first_name', 'last_name')[:20]
     
     results = []
     for user in users:

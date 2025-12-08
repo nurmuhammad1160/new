@@ -8,6 +8,13 @@
 
 {% block content %}
 
+<!-- Back Button -->
+<div class="page-header-with-back">
+    <button class="btn-back" onclick="history.back()">
+        ← {% trans "Orqaga" %}
+    </button>
+</div>
+
 <div class="ticket-detail-layout">
     <!-- Left Side - Ticket Info -->
     <div class="ticket-info-section">
@@ -24,21 +31,32 @@
                     </span>
                 </div>
                 <div class="ticket-actions">
+                    <!-- QAYTA OCHISH TUGMASI -->
                     {% if user == ticket.user and ticket.status == 'resolved' %}
-                    <form method="post" action="{% url 'tickets:reopen_ticket' ticket.pk %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-secondary" onclick="return confirm('{% trans "Murojaatni qayta ochmoqchimisiz?" %}')">
-                            🔄 {% trans "Qayta ochish" %}
-                        </button>
-                    </form>
+                        {% if ticket.can_reopen %}
+                            <form method="post" action="{% url 'tickets:reopen_ticket' ticket.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="btn btn-warning" 
+                                        onclick="return confirm('{% trans "Murojaatni qayta ochmoqchimisiz?" %}')">
+                                    🔄 {% trans "Qayta ochish" %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled title="{% trans 'Qayta ochish muddati tugagan (3 kun)' %}">
+                                🔄 {% trans "Qayta ochish" %} ({% trans "muddat tugagan" %})
+                            </button>
+                        {% endif %}
                     {% endif %}
                     
+                    <!-- Admin uchun mas'ul o'zgartirish -->
                     {% if user.is_admin %}
                     <button class="btn btn-secondary" onclick="openAssignModal()">
                         👤 {% trans "Mas'ul o'zgartirish" %}
                     </button>
                     {% endif %}
                     
+                    <!-- Texnik/Admin uchun holat o'zgartirish -->
                     {% if user == ticket.assigned_to or user.is_admin %}
                     <button class="btn btn-primary" onclick="openStatusModal()">
                         ⚙️ {% trans "Holat o'zgartirish" %}
@@ -127,11 +145,22 @@
             <form method="post" action="{% url 'tickets:rate_ticket' ticket.pk %}">
                 {% csrf_token %}
                 <div class="rating-form">
+                    <!-- FIXED: Stars in correct order (5 to 1) -->
                     <div class="rating-stars-input">
-                        {% for i in "12345" %}
-                        <input type="radio" name="rating" value="{{ forloop.counter }}" id="star{{ forloop.counter }}" required>
-                        <label for="star{{ forloop.counter }}">★</label>
-                        {% endfor %}
+                        <input type="radio" name="rating" value="5" id="star5" required>
+                        <label for="star5" title="5 yulduz - A'lo">★</label>
+                        
+                        <input type="radio" name="rating" value="4" id="star4">
+                        <label for="star4" title="4 yulduz - Yaxshi">★</label>
+                        
+                        <input type="radio" name="rating" value="3" id="star3">
+                        <label for="star3" title="3 yulduz - O'rtacha">★</label>
+                        
+                        <input type="radio" name="rating" value="2" id="star2">
+                        <label for="star2" title="2 yulduz - Yomon">★</label>
+                        
+                        <input type="radio" name="rating" value="1" id="star1">
+                        <label for="star1" title="1 yulduz - Juda yomon">★</label>
                     </div>
                     
                     <div class="form-group" style="margin-top: 20px;">
@@ -239,11 +268,27 @@
                         {% if ticket.status == 'new' %}
                             <option value="in_progress">{% trans "Jarayonda" %}</option>
                             <option value="rejected">{% trans "Rad etildi" %}</option>
-                        {% elif ticket.status == 'in_progress' or ticket.status == 'reopened' %}
+                        
+                        {% elif ticket.status == 'in_progress' %}
+                            <option value="pending_approval">{% trans "Hal qilindi (kutilmoqda)" %}</option>
+                            <option value="rejected">{% trans "Rad etildi" %}</option>
+                        
+                        {% elif ticket.status == 'reopened' %}
+                            <option value="in_progress">{% trans "Jarayonda" %}</option>
                             <option value="pending_approval">{% trans "Hal qilindi (kutilmoqda)" %}</option>
                             <option value="rejected">{% trans "Rad etildi" %}</option>
                         {% endif %}
                     </select>
+                </div>
+                
+                <!-- Current Status Indicator -->
+                <div class="current-status-info">
+                    <small class="text-muted">
+                        {% trans "Joriy holat" %}: 
+                        <strong class="status-badge status-{{ ticket.status }}">
+                            {{ ticket.get_status_display }}
+                        </strong>
+                    </small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -291,6 +336,32 @@
 
 {% block extra_css %}
 <style>
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+.page-header-with-back {
+    margin-bottom: 20px;
+}
+
+.btn-back {
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    color: var(--text-primary);
+}
+
+.btn-back:hover {
+    background: var(--bg-tertiary);
+    transform: translateX(-3px);
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
 .ticket-detail-layout {
     display: grid;
     grid-template-columns: 1fr 500px;
@@ -312,8 +383,87 @@
 .ticket-actions {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid #f59e0b;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    background: #f59e0b;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   STATUS & PRIORITY BADGES
+   ============================================ */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-new { 
+    background: rgba(255, 193, 7, 0.15); 
+    color: #ffc107; 
+}
+
+.status-in_progress { 
+    background: rgba(6, 182, 212, 0.15); 
+    color: #06b6d4; 
+}
+
+.status-pending_approval { 
+    background: rgba(245, 158, 11, 0.15); 
+    color: #f59e0b; 
+}
+
+.status-resolved { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: #10b981; 
+}
+
+.status-rejected { 
+    background: rgba(239, 68, 68, 0.15); 
+    color: #ef4444; 
+}
+
+.status-reopened { 
+    background: rgba(147, 51, 234, 0.15); 
+    color: #9333ea; 
+}
+
+.priority-badge {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.priority-low { color: #10b981; }
+.priority-medium { color: #f59e0b; }
+.priority-high { color: #ef4444; }
+
+/* ============================================
+   INFO GRID
+   ============================================ */
 .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -354,7 +504,53 @@
     text-decoration: underline;
 }
 
-/* Timeline */
+/* ============================================
+   RATING STARS (DISPLAY)
+   ============================================ */
+.rating-stars {
+    display: flex;
+    gap: 2px;
+}
+
+.star {
+    color: #d1d5db;
+    font-size: 16px;
+}
+
+.star.filled {
+    color: #fbbf24;
+}
+
+/* ============================================
+   RATING STARS (INPUT) - FIXED ORDER
+   ============================================ */
+.rating-stars-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.rating-stars-input input {
+    display: none;
+}
+
+.rating-stars-input label {
+    font-size: 32px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.rating-stars-input input:checked ~ label,
+.rating-stars-input label:hover,
+.rating-stars-input label:hover ~ label {
+    color: #fbbf24;
+}
+
+/* ============================================
+   TIMELINE
+   ============================================ */
 .timeline {
     position: relative;
     padding-left: 30px;
@@ -404,9 +600,11 @@
     font-size: 14px;
 }
 
-/* Chat */
+/* ============================================
+   CHAT
+   ============================================ */
 .chat-card {
-    height: calc(100vh - 140px);
+    height: calc(100vh - 200px);
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -526,35 +724,92 @@
     margin-top: 5px;
 }
 
-/* Rating Form */
-.rating-stars-input {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    gap: 5px;
-}
-
-.rating-stars-input input {
+/* ============================================
+   MODALS
+   ============================================ */
+.modal {
     display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
 }
 
-.rating-stars-input label {
-    font-size: 32px;
-    color: #d1d5db;
-    cursor: pointer;
-    transition: var(--transition);
+.modal.active {
+    display: flex;
 }
 
-.rating-stars-input input:checked ~ label,
-.rating-stars-input label:hover,
-.rating-stars-input label:hover ~ label {
-    color: #fbbf24;
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
 }
 
 .modal-sm .modal-content {
     max-width: 400px;
 }
 
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.modal-close {
+    font-size: 28px;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.current-status-info {
+    margin-top: 15px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+}
+
+.current-status-info .status-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 1200px) {
     .ticket-detail-layout {
         grid-template-columns: 1fr;
@@ -562,6 +817,22 @@
     
     .chat-card {
         height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ticket-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .ticket-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -583,6 +854,7 @@ document.getElementById('fileInput')?.addEventListener('change', function(e) {
     }
 });
 
+// Modal functions
 function openStatusModal() {
     document.getElementById('statusModal').classList.add('active');
 }
@@ -599,7 +871,16 @@ function closeAssignModal() {
     document.getElementById('assignModal').classList.remove('active');
 }
 
-// Auto-submit chat form on Enter
+// Close modals on outside click
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+        }
+    });
+});
+
+// Auto-submit chat form on Enter (without Shift)
 document.querySelector('.chat-input')?.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();

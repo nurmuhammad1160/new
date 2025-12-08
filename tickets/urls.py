@@ -57,4 +57,5 @@ urlpatterns = [
     
     # AJAX
     path('superadmin/users/search-ajax/', views_superadmin.superadmin_users_search_ajax, name='superadmin_users_search_ajax'),
+    path('api/users/search/', views_superadmin.api_users_search, name='api_users_search'),
 ]

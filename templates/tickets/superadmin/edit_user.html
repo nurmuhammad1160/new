@@ -2,9 +2,9 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}{% trans "Yangi foydalanuvchi" %}{% endblock %}
+{% block title %}{% trans "Tahrirlash" %} - {{ form.instance.get_full_name }}{% endblock %}
 
-{% block page_title %}{% trans "Yangi foydalanuvchi yaratish" %}{% endblock %}
+{% block page_title %}{% trans "Foydalanuvchini tahrirlash" %}{% endblock %}
 
 {% block content %}
 
@@ -14,11 +14,12 @@
         ← {% trans "Orqaga" %}
     </button>
     <div>
-        <p class="text-muted">{% trans "Tizimga yangi foydalanuvchi qo'shish" %}</p>
+        <h3 style="margin: 0;">{{ form.instance.get_full_name }}</h3>
+        <p class="text-muted" style="margin: 5px 0 0 0;">@{{ form.instance.username }}</p>
     </div>
 </div>
 
-<!-- Create User Form -->
+<!-- Edit User Form -->
 <div class="form-container">
     <div class="card form-card">
         <form method="post" class="user-form">
@@ -108,7 +109,7 @@
                             <option value="">{% trans "Tanlang" %}</option>
                             {% for region in form.region.field.queryset %}
                             <option value="{{ region.pk }}" 
-                                    {% if form.region.value == region.pk|stringformat:"s" %}selected{% endif %}>
+                                    {% if form.region.value == region.pk %}selected{% endif %}>
                                 {{ region.name }}
                             </option>
                             {% endfor %}
@@ -126,49 +127,26 @@
                         {% trans "Kirish ma'lumotlari" %}
                     </h3>
                     
-                    <!-- Username -->
-                    <div class="form-group {% if form.username.errors %}has-error{% endif %}">
-                        <label class="form-label required">
+                    <!-- Username (readonly) -->
+                    <div class="form-group">
+                        <label class="form-label">
                             {% trans "Login" %}
                         </label>
                         <input type="text" 
-                               name="username" 
                                class="form-input" 
-                               value="{{ form.username.value|default:'' }}"
-                               required>
-                        <small class="form-help">{% trans "Lotin harflari va raqamlar" %}</small>
-                        {% if form.username.errors %}
-                        <div class="form-error">{{ form.username.errors.0 }}</div>
-                        {% endif %}
+                               value="{{ form.instance.username }}"
+                               readonly
+                               style="background: var(--bg-primary); cursor: not-allowed;">
+                        <small class="form-help">ℹ️ {% trans "Login o'zgartirib bo'lmaydi" %}</small>
                     </div>
                     
-                    <!-- Password -->
-                    <div class="form-group {% if form.password1.errors %}has-error{% endif %}">
-                        <label class="form-label required">
-                            {% trans "Parol" %}
-                        </label>
-                        <input type="password" 
-                               name="password1" 
-                               class="form-input" 
-                               required>
-                        <small class="form-help">{% trans "Kamida 8 ta belgi" %}</small>
-                        {% if form.password1.errors %}
-                        <div class="form-error">{{ form.password1.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Password Confirm -->
-                    <div class="form-group {% if form.password2.errors %}has-error{% endif %}">
-                        <label class="form-label required">
-                            {% trans "Parolni tasdiqlash" %}
-                        </label>
-                        <input type="password" 
-                               name="password2" 
-                               class="form-input" 
-                               required>
-                        {% if form.password2.errors %}
-                        <div class="form-error">{{ form.password2.errors.0 }}</div>
-                        {% endif %}
+                    <!-- Password Change Link -->
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Parol" %}</label>
+                        <a href="{% url 'tickets:superadmin_reset_password' form.instance.pk %}" 
+                           class="btn btn-secondary" style="width: 100%;">
+                            🔑 {% trans "Parolni o'zgartirish" %}
+                        </a>
                     </div>
                     
                     <!-- Role -->
@@ -204,7 +182,7 @@
                             <input type="checkbox" 
                                    name="is_active" 
                                    value="1"
-                                   {% if form.is_active.value or not form.is_bound %}checked{% endif %}>
+                                   {% if form.is_active.value %}checked{% endif %}>
                             <span>{% trans "Faol foydalanuvchi" %}</span>
                         </label>
                     </div>
@@ -213,11 +191,11 @@
             
             <!-- Form Actions -->
             <div class="form-actions">
-                <a href="{% url 'tickets:superadmin_users_list' %}" class="btn btn-secondary">
+                <a href="{% url 'tickets:superadmin_user_detail' form.instance.pk %}" class="btn btn-secondary">
                     {% trans "Bekor qilish" %}
                 </a>
                 <button type="submit" class="btn btn-primary">
-                    ➕ {% trans "Yaratish" %}
+                    ✓ {% trans "Saqlash" %}
                 </button>
             </div>
         </form>
@@ -228,9 +206,7 @@
 
 {% block extra_css %}
 <style>
-/* ============================================
-   BACK BUTTON
-   ============================================ */
+/* Same styles as create_user.html */
 .page-header-with-back {
     display: flex;
     align-items: flex-start;
@@ -254,9 +230,6 @@
     transform: translateX(-3px);
 }
 
-/* ============================================
-   FORM CONTAINER - WIDER
-   ============================================ */
 .form-container {
     max-width: 900px;
     margin: 0 auto;
@@ -266,9 +239,6 @@
     padding: 40px;
 }
 
-/* ============================================
-   FORM GRID - 2 COLUMNS
-   ============================================ */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -298,9 +268,6 @@
     font-size: 22px;
 }
 
-/* ============================================
-   FORM GROUPS
-   ============================================ */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -353,9 +320,6 @@
     font-weight: 500;
 }
 
-/* ============================================
-   CHECKBOX
-   ============================================ */
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -382,9 +346,6 @@
     font-weight: 500;
 }
 
-/* ============================================
-   FORM ACTIONS
-   ============================================ */
 .form-actions {
     display: flex;
     justify-content: flex-end;
@@ -393,9 +354,6 @@
     border-top: 1px solid var(--border-color);
 }
 
-/* ============================================
-   ALERTS
-   ============================================ */
 .alert {
     padding: 15px 20px;
     border-radius: var(--radius-sm);
@@ -408,9 +366,6 @@
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
 @media (max-width: 768px) {
     .form-container {
         max-width: 100%;

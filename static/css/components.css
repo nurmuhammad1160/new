@@ -7,6 +7,245 @@
    NOTIFICATION ITEM (Dropdown)
    ============================================ */
 
+
+/* BASE.HTML NOTIFICATION DROPDOWN CSS */
+/* style.css yoki components.css ga qo'shish */
+
+/* Notifications Dropdown Wrapper */
+.notifications-dropdown-wrapper {
+    position: relative;
+}
+
+.notification-bell {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    transition: var(--transition);
+}
+
+.notification-bell:hover {
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #ef4444;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 18px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 400px;
+    max-height: 500px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.notification-menu.active {
+    display: flex;
+}
+
+.notification-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--accent-primary);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+
+.notification-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.notification-item.unread {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.notif-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.notif-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notif-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.no-notifications {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.no-notifications p {
+    margin: 0;
+}
+
+.notification-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-view-all {
+    display: block;
+    text-align: center;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-view-all:hover {
+    text-decoration: underline;
+}
+
+/* Sidebar Updates */
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    padding: 0 20px;
+    margin-bottom: 8px;
+}
+
+.nav-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 15px 20px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.nav-item .icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.nav-item:hover {
+    background: var(--bg-tertiary);
+    color: var(--accent-primary);
+}
+
+.nav-item.active {
+    background: var(--accent-primary);
+    color: white;
+    font-weight: 600;
+}
+
+.nav-item.active:hover {
+    background: var(--accent-primary);
+    opacity: 0.9;
+}
+
+.nav-item-danger {
+    color: #ef4444;
+}
+
+.nav-item-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-menu {
+        width: 90vw;
+        max-width: 400px;
+        right: -10px;
+    }
+}
+
 .notification-item {
     padding: 15px 20px;
     border-bottom: 1px solid var(--border-color);

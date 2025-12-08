@@ -15,6 +15,7 @@ urlpatterns = [
     path('tickets/', include('tickets.urls')),
     path('notifications/', include('notifications.urls')),
     path('systems/', include('systems.urls')),
+    path('reports/', include('reports.urls')),
     
     # Root redirect to login
     path('', RedirectView.as_view(url='/accounts/login/', permanent=False)),

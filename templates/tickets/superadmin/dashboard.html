@@ -7,14 +7,11 @@
 {% block page_title %}{% trans "Bosh Admin Paneli" %} 👑{% endblock %}
 
 {% block content %}
-<!-- Header Actions -->
+<!-- Header (WITHOUT button) -->
 <div class="page-header">
     <div>
         <p class="text-muted" style="margin: 0;">{% trans "To'liq tizim nazorati" %}</p>
     </div>
-    <a href="{% url 'tickets:superadmin_create_user' %}" class="btn btn-primary">
-        <span>➕</span> {% trans "Yangi foydalanuvchi" %}
-    </a>
 </div>
 
 <!-- System Health Alert -->
@@ -269,7 +266,7 @@
             {% for ticket in recent_tickets %}
             <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="list-item">
                 <div class="list-item-content">
-                    <div class="list-item-title">{{ ticket.title|truncatewords:8 }}</div>
+                    <div class="list-item-title">{{ ticket.system.name }} - #{{ ticket.pk }}</div>
                     <small class="text-muted">
                         {{ ticket.user.get_full_name }} • {{ ticket.created_at|timesince }}
                     </small>
@@ -312,9 +309,6 @@
 {% block extra_css %}
 <style>
 .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 30px;
 }
 
@@ -428,6 +422,8 @@
     padding: 15px;
     border-bottom: 1px solid var(--border-color);
     transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
 }
 
 .list-item:last-child {
@@ -491,6 +487,8 @@
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
     transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
 }
 
 .quick-link-item:hover {
@@ -506,11 +504,21 @@
     text-align: center;
 }
 
-/* Badge colors based on status */
-.badge-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badge-primary { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.badge-new { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
 .badge-in_progress { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.badge-pending_approval { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
 .badge-resolved { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-.badge-closed { background: rgba(107, 114, 128, 0.15); color: #6b7280; }
+.badge-rejected { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
 
 @media (max-width: 1200px) {
     .stats-grid-4 {
@@ -527,12 +535,6 @@
     .grid-2,
     .quick-links {
         grid-template-columns: 1fr;
-    }
-    
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
     }
 }
 </style>

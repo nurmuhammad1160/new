@@ -99,6 +99,30 @@ class Ticket(models.Model):
     def __str__(self):
         return f"#{self.pk:04d} - {self.system.name} - {self.user.get_full_name()}"
     
+    @property
+    def can_reopen(self):
+        """
+        Ticketni qayta ochish mumkinmi tekshirish
+        Faqat 3 kun ichida mumkin
+        """
+        if self.status != 'resolved':
+            return False
+        
+        if not self.resolved_at:
+            # Agar resolved_at bo'lmasa, har doim ochish mumkin
+            return True
+        
+        # 3 kun o'tganmi?
+        days_passed = (timezone.now() - self.resolved_at).days
+        return days_passed <= 3
+    
+    @property
+    def days_since_resolved(self):
+        """Hal qilinganidan keyin necha kun o'tdi"""
+        if not self.resolved_at:
+            return None
+        return (timezone.now() - self.resolved_at).days
+    
     def get_ticket_number(self):
         """Ticket raqami: #2025-0001"""
         year = self.created_at.year

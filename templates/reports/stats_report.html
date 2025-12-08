@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Statistika" %}{% endblock %}
+{% block page_title %}{% trans "Statistika" %}{% endblock %}
+
+{% block content %}
+<div class="page-header-with-back">
+    <button class="btn-back" onclick="history.back()">← {% trans "Orqaga" %}</button>
+    <div class="export-buttons">
+        <form method="get" action="{% url 'reports:generate' %}" style="display:inline">
+            {% for key, value in request.GET.items %}
+                {% if key != 'export_format' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}
+            {% endfor %}
+            <input type="hidden" name="export_format" value="pdf">
+            <button type="submit" class="btn btn-danger">📄 PDF</button>
+        </form>
+        <form method="get" action="{% url 'reports:generate' %}" style="display:inline">
+            {% for key, value in request.GET.items %}
+                {% if key != 'export_format' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}
+            {% endfor %}
+            <input type="hidden" name="export_format" value="excel">
+            <button type="submit" class="btn btn-success">📊 Excel</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h2>{{ report_type }}</h2>
+    <table class="stats-table">
+        <thead>
+            <tr>
+                <th>{% trans "Ko'rsatkich" %}</th>
+                <th>{% trans "Qiymat" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if stats_data %}
+                {% for key, value in stats_data.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td><strong>{{ value }}</strong></td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header-with-back { display: flex; justify-content: space-between; margin-bottom: 30px; }
+.btn-back { padding: 12px 24px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; font-weight: 600; }
+.export-buttons { display: flex; gap: 10px; }
+.btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+.btn-success { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid #10b981; padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+.stats-table { width: 100%; border-collapse: collapse; }
+.stats-table th { padding: 15px; background: var(--bg-tertiary); text-align: left; font-weight: 700; }
+.stats-table td { padding: 15px; border-bottom: 1px solid var(--border-color); }
+</style>
+{% endblock %}

@@ -6,63 +6,80 @@
 {% block page_title %}{% trans "Audit Loglar" %}{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="page-header">
-    <div>
-        <p class="text-muted" style="margin: 0;">{% trans "Tizimda amalga oshirilgan barcha harakatlar tarixi" %}</p>
-    </div>
-    <a href="{% url 'tickets:superadmin_dashboard' %}" class="btn btn-secondary">
+
+<!-- Back Button + Header -->
+<div class="page-header-with-back">
+    <button class="btn-back" onclick="history.back()">
         ← {% trans "Orqaga" %}
-    </a>
+    </button>
+    <div>
+        <p class="text-muted">{% trans "Tizimda amalga oshirilgan barcha harakatlar tarixi" %}</p>
+    </div>
 </div>
 
 <!-- Filters -->
-<div class="card" style="margin-bottom: 30px;">
-    <form method="get" class="filter-form">
-        <div class="filter-grid-3">
-            <!-- Action Type Filter -->
-            <div class="form-group">
-                <label class="form-label">{% trans "Harakat turi" %}</label>
-                <select name="action_type" class="form-select">
-                    <option value="">{% trans "Barchasi" %}</option>
-                    <option value="created" {% if action_type == 'created' %}selected{% endif %}>
-                        {% trans "Yaratildi" %}
-                    </option>
-                    <option value="status_changed" {% if action_type == 'status_changed' %}selected{% endif %}>
-                        {% trans "Status o'zgartirildi" %}
-                    </option>
-                    <option value="assigned" {% if action_type == 'assigned' %}selected{% endif %}>
-                        {% trans "Biriktirildi" %}
-                    </option>
-                    <option value="message_sent" {% if action_type == 'message_sent' %}selected{% endif %}>
-                        {% trans "Xabar yuborildi" %}
-                    </option>
-                    <option value="reopened" {% if action_type == 'reopened' %}selected{% endif %}>
-                        {% trans "Qayta ochildi" %}
-                    </option>
-                    <option value="rated" {% if action_type == 'rated' %}selected{% endif %}>
-                        {% trans "Baholandi" %}
-                    </option>
-                    <option value="admin_action" {% if action_type == 'admin_action' %}selected{% endif %}>
-                        {% trans "Admin harakati" %}
-                    </option>
-                </select>
+<div class="card filter-card">
+    <form method="get" id="filterForm">
+        <!-- Action Type Chips -->
+        <div class="form-group">
+            <label class="form-label">{% trans "Harakat turi" %}</label>
+            <div class="filter-chips">
+                <label class="chip">
+                    <input type="radio" name="action_type" value="" {% if not action_type %}checked{% endif %}>
+                    <span>📋 {% trans "Barchasi" %}</span>
+                </label>
+                <label class="chip">
+                    <input type="radio" name="action_type" value="created" {% if action_type == 'created' %}checked{% endif %}>
+                    <span>➕ {% trans "Yaratildi" %}</span>
+                </label>
+                <label class="chip">
+                    <input type="radio" name="action_type" value="status_changed" {% if action_type == 'status_changed' %}checked{% endif %}>
+                    <span>🔄 {% trans "Status o'zgartirildi" %}</span>
+                </label>
+                <label class="chip">
+                    <input type="radio" name="action_type" value="assigned" {% if action_type == 'assigned' %}checked{% endif %}>
+                    <span>👤 {% trans "Biriktirildi" %}</span>
+                </label>
+                <label class="chip">
+                    <input type="radio" name="action_type" value="comment" {% if action_type == 'comment' %}checked{% endif %}>
+                    <span>💬 {% trans "Xabar" %}</span>
+                </label>
+                <label class="chip">
+                    <input type="radio" name="action_type" value="reopened" {% if action_type == 'reopened' %}checked{% endif %}>
+                    <span>↩️ {% trans "Qayta ochildi" %}</span>
+                </label>
+                <label class="chip">
+                    <input type="radio" name="action_type" value="rated" {% if action_type == 'rated' %}checked{% endif %}>
+                    <span>⭐ {% trans "Baholandi" %}</span>
+                </label>
             </div>
-
-            <!-- User Filter -->
-            <div class="form-group">
-                <label class="form-label">{% trans "Foydalanuvchi ID" %}</label>
-                <input type="number" name="user_id" class="form-input" 
-                       placeholder="{% trans 'Foydalanuvchi ID' %}" 
-                       value="{{ user_id }}">
+        </div>
+        
+        <!-- User Search with Autocomplete -->
+        <div class="form-group" style="position: relative;">
+            <label class="form-label">{% trans "Foydalanuvchi" %}</label>
+            <div class="search-input-wrapper">
+                <input type="text" 
+                       id="userSearch" 
+                       class="form-input" 
+                       placeholder="{% trans 'F.I.Sh bo\'yicha qidirish...' %}"
+                       value="{{ selected_user_name|default:'' }}">
+                <input type="hidden" name="user_id" id="userId" value="{{ user_id|default:'' }}">
+                {% if user_id %}
+                <button type="button" class="clear-search" onclick="clearUserSearch()">×</button>
+                {% endif %}
             </div>
-
-            <!-- Submit -->
-            <div class="form-group" style="display: flex; align-items: flex-end;">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    🔍 {% trans "Filtrlash" %}
-                </button>
-            </div>
+            <div id="userResults" class="autocomplete-results"></div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                🔍 {% trans "Filtrlash" %}
+            </button>
+            <a href="{% url 'tickets:superadmin_audit_logs' %}" class="btn btn-secondary">
+                {% trans "Tozalash" %}
+            </a>
         </div>
     </form>
 </div>
@@ -70,13 +87,13 @@
 <!-- Logs Table -->
 <div class="card">
     <div class="table-responsive">
-        <table class="table">
+        <table class="table logs-table">
             <thead>
                 <tr>
-                    <th style="width: 140px;">{% trans "Vaqt" %}</th>
-                    <th style="width: 180px;">{% trans "Foydalanuvchi" %}</th>
-                    <th style="width: 120px;">{% trans "Harakat" %}</th>
-                    <th>{% trans "Tavsif" %}</th>
+                    <th style="width: 120px;">{% trans "Vaqt" %}</th>
+                    <th style="width: 250px;">{% trans "Foydalanuvchi" %}</th>
+                    <th style="width: 140px;">{% trans "Harakat" %}</th>
+                    <th style="min-width: 400px;">{% trans "Tafsilotlar" %}</th>
                     <th style="width: 100px; text-align: center;">{% trans "Ticket" %}</th>
                 </tr>
             </thead>
@@ -85,64 +102,87 @@
                 <tr>
                     <!-- Timestamp -->
                     <td>
-                        <div style="font-size: 13px;">
-                            🕐 {{ log.timestamp|date:"d.m.Y" }}<br>
-                            <small class="text-muted">{{ log.timestamp|time:"H:i:s" }}</small>
+                        <div class="time-cell">
+                            <div class="time-date">{{ log.timestamp|date:"d.m.Y" }}</div>
+                            <div class="time-clock">{{ log.timestamp|time:"H:i" }}</div>
                         </div>
                     </td>
 
                     <!-- User -->
                     <td>
                         {% if log.changed_by %}
-                            <div class="user-cell-mini">
-                                {% if log.changed_by.photo %}
-                                    <img src="{{ log.changed_by.photo.url }}" class="avatar-mini" alt="{{ log.changed_by.get_full_name }}">
-                                {% else %}
-                                    <div class="avatar-mini-placeholder">
-                                        {{ log.changed_by.first_name|first }}{{ log.changed_by.last_name|first }}
-                                    </div>
-                                {% endif %}
-                                <a href="{% url 'tickets:superadmin_user_detail' log.changed_by.id %}" class="user-link">
-                                    {{ log.changed_by.get_full_name }}
-                                </a>
+                            <div class="user-cell">
+                                <div class="user-avatar">
+                                    {% if log.changed_by.photo %}
+                                        <img src="{{ log.changed_by.photo.url }}" alt="{{ log.changed_by.get_full_name }}">
+                                    {% else %}
+                                        <div class="avatar-placeholder">
+                                            {{ log.changed_by.first_name|first }}{{ log.changed_by.last_name|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="user-info-text">
+                                    <a href="{% url 'tickets:superadmin_user_detail' log.changed_by.id %}" class="user-link">
+                                        {{ log.changed_by.get_full_name }}
+                                    </a>
+                                    <div class="user-role-small">{{ log.changed_by.get_role_display }}</div>
+                                </div>
                             </div>
                         {% else %}
-                            <span class="text-muted">{% trans "Tizim" %}</span>
+                            <span class="text-muted">🤖 {% trans "Tizim" %}</span>
                         {% endif %}
                     </td>
 
-                    <!-- Action Type -->
+                    <!-- Action Type Badge -->
                     <td>
                         {% if log.action_type == 'created' %}
-                            <span class="badge badge-success">➕ {% trans "Yaratildi" %}</span>
+                            <span class="action-badge badge-created">➕ {% trans "Yaratildi" %}</span>
                         {% elif log.action_type == 'status_changed' %}
-                            <span class="badge badge-warning">🔄 {% trans "Status" %}</span>
-                        {% elif log.action_type == 'assigned' %}
-                            <span class="badge badge-info">👤 {% trans "Biriktirildi" %}</span>
-                        {% elif log.action_type == 'message_sent' %}
-                            <span class="badge badge-primary">💬 {% trans "Xabar" %}</span>
+                            <span class="action-badge badge-status">🔄 {% trans "Status" %}</span>
+                        {% elif log.action_type == 'assigned' or log.action_type == 'reassigned' %}
+                            <span class="action-badge badge-assigned">👤 {% trans "Biriktirildi" %}</span>
+                        {% elif log.action_type == 'comment' %}
+                            <span class="action-badge badge-comment">💬 {% trans "Xabar" %}</span>
                         {% elif log.action_type == 'reopened' %}
-                            <span class="badge badge-danger">↩️ {% trans "Qayta ochildi" %}</span>
+                            <span class="action-badge badge-reopened">↩️ {% trans "Qayta ochildi" %}</span>
                         {% elif log.action_type == 'rated' %}
-                            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">⭐ {% trans "Baholandi" %}</span>
-                        {% elif log.action_type == 'admin_action' %}
-                            <span class="badge" style="background: rgba(26, 29, 41, 0.15); color: #1a1d29;">🛡️ {% trans "Admin" %}</span>
+                            <span class="action-badge badge-rated">⭐ {% trans "Baholandi" %}</span>
                         {% else %}
-                            <span class="badge">{{ log.action_type }}</span>
+                            <span class="action-badge">{{ log.action_type }}</span>
                         {% endif %}
                     </td>
 
-                    <!-- Message -->
+                    <!-- Details (Main Message + Context) -->
                     <td>
-                        <small>{{ log.message }}</small>
+                        <div class="details-cell">
+                            <div class="details-message">{{ log.message }}</div>
+                            {% if log.ticket %}
+                            <div class="details-context">
+                                <span class="context-item">
+                                    <span class="context-icon">🖥️</span>
+                                    {{ log.ticket.system.name }}
+                                </span>
+                                <span class="context-item">
+                                    <span class="context-icon">📍</span>
+                                    {{ log.ticket.region.name }}
+                                </span>
+                                {% if log.ticket.assigned_to %}
+                                <span class="context-item">
+                                    <span class="context-icon">👤</span>
+                                    {{ log.ticket.assigned_to.get_full_name }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
                     </td>
 
                     <!-- Ticket Link -->
                     <td style="text-align: center;">
                         {% if log.ticket %}
                             <a href="{% url 'tickets:ticket_detail' log.ticket.pk %}" 
-                               class="btn-icon-small"
-                               data-tooltip="{% trans 'Ticketni ko\'rish' %}">
+                               class="ticket-link"
+                               title="{% trans 'Ticketni ko\'rish' %}">
                                 #{{ log.ticket.pk }}
                             </a>
                         {% else %}
@@ -166,89 +206,319 @@
     </div>
 </div>
 
-<!-- Info Card -->
-<div class="card" style="margin-top: 20px;">
-    <div style="text-align: center; padding: 20px;">
-        <h3 style="margin-bottom: 10px;">{{ logs|length }}</h3>
-        <p class="text-muted" style="margin: 0;">
-            ℹ️ {% trans "Ko'rsatilmoqda (oxirgi 200 ta log)" %}
-        </p>
+<!-- Info Footer -->
+<div class="info-footer">
+    <div class="info-stat">
+        <div class="info-value">{{ logs|length }}</div>
+        <div class="info-label">{% trans "Ko'rsatilmoqda" %}</div>
     </div>
+    <p class="text-muted">
+        ℹ️ {% trans "Oxirgi 200 ta log" %}
+    </p>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.page-header {
+/* Back Button + Header */
+.page-header-with-back {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 20px;
     margin-bottom: 30px;
 }
 
-.filter-form {
-    width: 100%;
+.btn-back {
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    color: var(--text-primary);
 }
 
-.filter-grid-3 {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 15px;
+.btn-back:hover {
+    background: var(--bg-tertiary);
+    transform: translateX(-3px);
 }
 
-.user-cell-mini {
+/* Filter Card */
+.filter-card {
+    margin-bottom: 30px;
+}
+
+/* Filter Chips */
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.chip {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.chip input {
+    display: none;
+}
+
+.chip span {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--bg-tertiary);
+    transition: var(--transition);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.chip input:checked + span {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.chip:hover span {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+/* User Search */
+.search-input-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
 }
 
-.avatar-mini {
-    width: 30px;
-    height: 30px;
+.clear-search {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.clear-search:hover {
+    color: var(--text-primary);
+}
+
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+    box-shadow: var(--shadow-lg);
+    margin-top: 5px;
+}
+
+.autocomplete-results:not(:empty) {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.autocomplete-item strong {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.autocomplete-item small {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Table */
+.logs-table {
+    width: 100%;
+    table-layout: fixed; /* MUHIM! */
+}
+
+.logs-table tbody tr {
+    transition: var(--transition);
+}
+
+.logs-table tbody tr:hover {
+    background: var(--bg-tertiary);
+}
+
+/* Time Cell */
+.time-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.time-date {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.time-clock {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* User Cell - KENGAYTIRILDI! */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar img,
+.avatar-placeholder {
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
-.avatar-mini-placeholder {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+.avatar-placeholder {
     background: var(--accent-primary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 14px;
+}
+
+.user-info-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .user-link {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-primary);
     text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .user-link:hover {
     color: var(--accent-primary);
+    text-decoration: underline;
 }
 
-.btn-icon-small {
-    padding: 4px 8px;
+.user-role-small {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Action Badge */
+.action-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-created { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badge-status { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.badge-assigned { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.badge-comment { background: rgba(147, 51, 234, 0.15); color: #9333ea; }
+.badge-reopened { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.badge-rated { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+/* Details Cell */
+.details-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.details-message {
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.details-context {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.context-item {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.context-icon {
+    font-size: 14px;
+}
+
+/* Ticket Link */
+.ticket-link {
+    display: inline-block;
+    padding: 5px 12px;
     border-radius: var(--radius-sm);
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     text-decoration: none;
     color: var(--accent-primary);
-    display: inline-block;
     transition: var(--transition);
 }
 
-.btn-icon-small:hover {
-    background: var(--border-color);
+.ticket-link:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
 }
 
+/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -271,16 +541,147 @@
     margin: 0;
 }
 
-@media (max-width: 768px) {
-    .filter-grid-3 {
-        grid-template-columns: 1fr;
+/* Info Footer */
+.info-footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.info-stat {
+    margin-bottom: 10px;
+}
+
+.info-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.info-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .logs-table th:nth-child(4) {
+        min-width: 300px;
     }
-    
-    .page-header {
+}
+
+@media (max-width: 768px) {
+    .page-header-with-back {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
+    
+    .filter-chips {
+        flex-direction: column;
+    }
+    
+    .chip span {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .user-cell {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .details-context {
+        flex-direction: column;
+    }
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// User Search Autocomplete
+let searchTimeout;
+const userSearchInput = document.getElementById('userSearch');
+const userIdInput = document.getElementById('userId');
+const userResults = document.getElementById('userResults');
+
+userSearchInput?.addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length < 2) {
+        userResults.innerHTML = '';
+        userIdInput.value = '';
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        fetch(`/tickets/api/users/search/?q=${encodeURIComponent(query)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    userResults.innerHTML = data.results.map(user => `
+                        <div class="autocomplete-item" onclick="selectUser(${user.id}, '${user.full_name}', '${user.role}')">
+                            <strong>${user.full_name}</strong>
+                            <small>${user.role}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    userResults.innerHTML = '<div class="autocomplete-item" style="text-align: center; color: var(--text-muted);">{% trans "Topilmadi" %}</div>';
+                }
+            })
+            .catch(err => {
+                console.error('Search error:', err);
+                userResults.innerHTML = '';
+            });
+    }, 300);
+});
+
+function selectUser(id, name, role) {
+    userSearchInput.value = name;
+    userIdInput.value = id;
+    userResults.innerHTML = '';
+    
+    // Show clear button
+    if (!document.querySelector('.clear-search')) {
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'clear-search';
+        clearBtn.textContent = '×';
+        clearBtn.onclick = clearUserSearch;
+        document.querySelector('.search-input-wrapper').appendChild(clearBtn);
+    }
+}
+
+function clearUserSearch() {
+    userSearchInput.value = '';
+    userIdInput.value = '';
+    userResults.innerHTML = '';
+    const clearBtn = document.querySelector('.clear-search');
+    if (clearBtn) clearBtn.remove();
+}
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-input-wrapper') && !e.target.closest('.autocomplete-results')) {
+        userResults.innerHTML = '';
+    }
+});
+
+// Auto-submit on chip change
+document.querySelectorAll('.chip input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+    });
+});
+</script>
 {% endblock %}

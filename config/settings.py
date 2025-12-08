@@ -1,7 +1,6 @@
 """
 Django settings for IIV Support project.
 """
-
 from pathlib import Path
 import os
 import dj_database_url
@@ -25,26 +24,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     # Local apps
     'accounts',
     'tickets',
     'systems',
     'notifications',
+    'reports',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # ✅ Til middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 
 ROOT_URLCONF = 'config.urls'
 
@@ -59,7 +57,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.i18n',  # For language
+                'django.template.context_processors.i18n',  # ✅ i18n context
             ],
         },
     },
@@ -68,9 +66,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
-
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
@@ -82,7 +78,6 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3'
         }
     }
-
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -100,22 +95,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# Tillar ro'yxati
+# ============================================
+# INTERNATIONALIZATION (TO'G'RILANGAN!)
+# ============================================
+
+# ✅ TO'G'RI FORMAT: kichik harflar va - belgi
 LANGUAGES = [
-    ('uz', 'O\'zbekcha'),
-    ('uz-Cyrl', 'Ўзбекча'),  # ✅ C KATTA!
-    ('ru', 'Русский'),
+    ('uz', 'O\'zbekcha'),      # ✅ Lotin
+    ('uz-cyrl', 'Ўзбекча'),    # ✅ TO'G'RI: uz-cyrl (kichik harf!)
+    ('ru', 'Русский'),         # ✅ Rus
 ]
 
-LANGUAGE_CODE = 'uz'  # Default til
+# Default til
+LANGUAGE_CODE = 'uz'
 
 # Locale papkasi
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
-# i18n yoqilgan
+# i18n sozlamalar
 USE_I18N = True
 USE_L10N = True
 
@@ -124,14 +123,20 @@ LANGUAGE_COOKIE_NAME = 'django_language'
 LANGUAGE_COOKIE_AGE = 31536000  # 1 yil
 LANGUAGE_COOKIE_PATH = '/'
 LANGUAGE_COOKIE_DOMAIN = None
+LANGUAGE_COOKIE_HTTPONLY = False  # ✅ JavaScript orqali o'qish uchun
+LANGUAGE_COOKIE_SAMESITE = 'Lax'  # ✅ Security
+
+# ============================================
+# TIME & TIMEZONE
+# ============================================
 
 TIME_ZONE = 'Asia/Tashkent'
-
-
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# ============================================
+# STATIC FILES
+# ============================================
+
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
@@ -139,11 +144,17 @@ STATICFILES_DIRS = [
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (User uploads)
+# ============================================
+# MEDIA FILES
+# ============================================
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
+# ============================================
+# DEFAULT SETTINGS
+# ============================================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login/Logout URLs

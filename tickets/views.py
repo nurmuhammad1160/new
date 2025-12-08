@@ -250,10 +250,9 @@ def send_message(request, pk):
     
     return redirect('tickets:ticket_detail', pk=pk)
 
-
 @login_required
 def rate_ticket(request, pk):
-    """Murojaatni baholash"""
+    """Murojaatni baholash - YANGILANGAN VERSIYA"""
     ticket = get_object_or_404(Ticket, pk=pk, user=request.user)
     
     if ticket.status != 'pending_approval':
@@ -266,53 +265,87 @@ def rate_ticket(request, pk):
             ticket = form.save(commit=False)
             rating = ticket.rating
             
-            # Baholashga qarab status o'zgartirish
+            # ✅ YANGI LOGIKA: Baholashga qarab status o'zgartirish
             if rating >= 4:
-                # Yaxshi baho - hal qilindi
+                # Yaxshi baho (4-5⭐) - HAL QILINDI
                 ticket.status = 'resolved'
                 ticket.resolved_at = timezone.now()
-                status_message = _('Murojaat hal qilindi deb belgilandi')
+                status_message = _('Murojaat hal qilindi deb belgilandi ({}⭐)').format(rating)
+                
+                # Audit log
+                TicketHistory.objects.create(
+                    ticket=ticket,
+                    changed_by=request.user,
+                    action_type='rated',
+                    old_value='pending_approval',
+                    new_value='resolved',
+                    message=status_message
+                )
+                
+                messages.success(request, _('Baholash saqlandi! Murojaat hal qilindi. Rahmat!'))
+                
             else:
-                # Yomon baho - qayta ochish
+                # Yomon baho (1-3⭐) - QAYTA OCHISH
                 ticket.status = 'reopened'
-                status_message = _('Murojaat qayta ochildi')
+                status_message = _('Murojaat qayta ochildi ({}⭐)').format(rating)
+                
+                # Audit log
+                TicketHistory.objects.create(
+                    ticket=ticket,
+                    changed_by=request.user,
+                    action_type='reopened',
+                    old_value='pending_approval',
+                    new_value='reopened',
+                    message=status_message
+                )
+                
+                # Texnikga notification
+                if ticket.assigned_to:
+                    Notification.objects.create(
+                        user=ticket.assigned_to,
+                        notification_type='ticket_reopened',
+                        title=_('Murojaat qayta ochildi'),
+                        text=_('Foydalanuvchi {}⭐ baho berdi va murojaat qayta ochildi: {}').format(
+                            rating, 
+                            ticket.get_ticket_number()
+                        ),
+                        url=f'/tickets/{ticket.id}/'
+                    )
+                
+                messages.warning(
+                    request, 
+                    _('Baholash saqlandi. Murojaat qayta ochildi. Texnik yana ko\'rib chiqadi.')
+                )
             
             ticket.save()
             
-            # Audit log
-            TicketHistory.objects.create(
-                ticket=ticket,
-                changed_by=request.user,
-                action_type='rated',
-                new_value=str(rating),
-                message=status_message
-            )
-            
-            # Notification (mas'ul xodimga)
-            if ticket.assigned_to:
-                Notification.objects.create(
-                    user=ticket.assigned_to,
-                    notification_type='rating_request',
-                    title=_('Murojaat baholandi'),
-                    text=_('Murojaat {} baho bilan baholandi: {}').format(rating, ticket.get_ticket_number()),
-                    url=f'/tickets/{ticket.id}/'
-                )
-            
-            messages.success(request, _('Baholash saqlandi. Rahmat!'))
             return redirect('tickets:ticket_detail', pk=pk)
     
     return redirect('tickets:ticket_detail', pk=pk)
 
 
+
 @login_required
 def reopen_ticket(request, pk):
-    """Murojaatni qayta ochish"""
+    """Murojaatni qayta ochish - YANGILANGAN"""
     ticket = get_object_or_404(Ticket, pk=pk, user=request.user)
     
+    # Faqat "resolved" ticketlarni qayta ochish mumkin
     if ticket.status != 'resolved':
         messages.error(request, _('Faqat hal qilingan murojaatlarni qayta ochish mumkin.'))
         return redirect('tickets:ticket_detail', pk=pk)
     
+    # ✅ 2-3 kun muddat tekshirish (ixtiyoriy)
+    if ticket.resolved_at:
+        days_since_resolved = (timezone.now() - ticket.resolved_at).days
+        if days_since_resolved > 3:
+            messages.error(
+                request, 
+                _('Qayta ochish muddati tugagan (3 kundan ortiq vaqt o\'tgan).')
+            )
+            return redirect('tickets:ticket_detail', pk=pk)
+    
+    # Status o'zgartirish
     ticket.status = 'reopened'
     ticket.save()
     
@@ -326,17 +359,19 @@ def reopen_ticket(request, pk):
         message=_('Foydalanuvchi tomonidan qayta ochildi')
     )
     
-    # Notification (mas'ul xodimga)
+    # Texnikga notification
     if ticket.assigned_to:
         Notification.objects.create(
             user=ticket.assigned_to,
-            notification_type='status_changed',
+            notification_type='ticket_reopened',
             title=_('Murojaat qayta ochildi'),
-            text=_('Murojaat foydalanuvchi tomonidan qayta ochildi: {}').format(ticket.get_ticket_number()),
+            text=_('Foydalanuvchi tomonidan qayta ochildi: {}').format(
+                ticket.get_ticket_number()
+            ),
             url=f'/tickets/{ticket.id}/'
         )
     
-    messages.success(request, _('Murojaat qayta ochildi.'))
+    messages.success(request, _('Murojaat qayta ochildi. Texnik yana ko\'rib chiqadi.'))
     return redirect('tickets:ticket_detail', pk=pk)
 
 
@@ -440,7 +475,7 @@ def technician_tickets(request):
 @login_required
 @require_technician
 def change_ticket_status(request, pk):
-    """Ticket holati o'zgartirish"""
+    """Ticket holati o'zgartirish - YANGILANGAN"""
     ticket = get_object_or_404(Ticket, pk=pk)
     
     # Ruxsat tekshirish
@@ -451,16 +486,16 @@ def change_ticket_status(request, pk):
     if request.method == 'POST':
         new_status = request.POST.get('status')
         
-        # Status o'zgarishini tekshirish
+        # ✅ YANGILANGAN: Status o'zgarishini tekshirish
         valid_transitions = {
             'new': ['in_progress', 'rejected'],
             'in_progress': ['pending_approval', 'rejected'],
-            'reopened': ['in_progress', 'rejected'],
+            'reopened': ['in_progress', 'pending_approval', 'rejected'],  # ✅ YANGI!
         }
         
         current_status = ticket.status
         if new_status in valid_transitions.get(current_status, []):
-            old_status = ticket.get_status_display()
+            old_status_display = ticket.get_status_display()
             ticket.status = new_status
             ticket.save()
             
@@ -472,7 +507,7 @@ def change_ticket_status(request, pk):
                 old_value=current_status,
                 new_value=new_status,
                 message=_('Status o\'zgartirildi: {} → {}').format(
-                    old_status,
+                    old_status_display,
                     ticket.get_status_display()
                 )
             )

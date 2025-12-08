@@ -181,7 +181,7 @@ function showBrowserNotification(notif) {
         // Auto close after 5 seconds
         setTimeout(() => {
             notification.close();
-        }, 5000);
+        }, 2000);
     }
 }
 
