@@ -17,13 +17,18 @@
     
     <!-- Sidebar -->
     <aside class="sidebar">
+        
         <div class="sidebar-header">
-            <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-                <img src="{% static 'images/logo1.png' %}" alt="IIV Logo">
-                <H1>Support</H1>
+            <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+                <img src="{% static 'images/logo1.png' %}" alt="IIV Logo" style="width: 45px; height: 45px; object-fit: contain;">
+                <div class="logo-text" style="display: flex; flex-direction: column; gap: 2px;">
+                    <h1 style="font-size: 22px; font-weight: 800; margin: 0; color: #ffffff; line-height: 1;">IIV</h1>
+                    <span style="font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Texnik Yordam</span>
+                </div>
             </div>
             <p class="sidebar-tagline">{% trans "IIO xodimlari uchun yagona texnik yordam portali" %}</p>
         </div>
+
         
         <nav class="sidebar-nav">
             {% block sidebar_menu %}
@@ -38,10 +43,10 @@
                         <span class="icon">👥</span>
                         <span>{% trans "Foydalanuvchilar" %}</span>
                     </a>
-                    <a href="{% url 'tickets:superadmin_create_user' %}" class="nav-item">
+                    <!-- <a href="{% url 'tickets:superadmin_create_user' %}" class="nav-item">
                         <span class="icon">➕</span>
                         <span>{% trans "Yangi foydalanuvchi" %}</span>
-                    </a>
+                    </a> -->
                     <a href="{% url 'systems:systems_list' %}" class="nav-item">
                         <span class="icon">⚙️</span>
                         <span>{% trans "Tizimlar" %}</span>
@@ -65,7 +70,7 @@
                     </a> -->
                     <a href="{% url 'tickets:users_list' %}" class="nav-item">
                         <span class="icon">👥</span>
-                        <span>{% trans "Xodimlar" %}</span>
+                        <span>{% trans "Tizimlar bo'yicha masullar" %}</span>
                     </a>
                     <a href="{% url 'reports:dashboard' %}" 
                            class="nav-item {% if 'reports' in request.path %}active{% endif %}">

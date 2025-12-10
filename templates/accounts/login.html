@@ -11,43 +11,58 @@
 <body data-theme="light">
     
     <div class="auth-container">
-        <!-- Left Side - Info -->
+        <!-- ============================================
+             LEFT SIDE - INFO & BRANDING
+             ============================================ -->
         <div class="auth-left">
+            <!-- Logo with animation -->
             <div class="auth-logo">
                 <img src="{% static 'images/logo1.png' %}" alt="IIV Logo">
             </div>
+            
+            <!-- Title with gradient -->
             <h1 class="auth-title">{% trans "IIV Texnik Yordam Tizimi" %}</h1>
+            
+            <!-- Description -->
             <p class="auth-description">
                 {% trans "Bu sahifa orqali IIO xodimlari har qanday tizimlarda uchraydigan muammolar (tizim ishlamaslik holatlari, login parol olish, tarmoq uzilish va h.k.) bo'yicha texnik yordam olishlari mumkin!" %}
             </p>
             
+            <!-- Features list -->
             <div class="auth-features">
                 <div class="feature-item">
-                    <span class="feature-icon">✓</span>
-                    <span>{% trans "24/7 texnik yordam" %}</span>
+                    <span class="feature-icon">⚡</span>
+                    <span>{% trans "Tez va oson murojaat yuborish" %}</span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">✓</span>
-                    <span>{% trans "Tez va samarali yechimlar" %}</span>
+                    <span class="feature-icon">🔒</span>
+                    <span>{% trans "Xavfsiz va ishonchli tizim" %}</span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">✓</span>
-                    <span>{% trans "Barcha tizimlar bir joyda" %}</span>
+                    <span class="feature-icon">💬</span>
+                    <span>{% trans "Real-time chat va bildirishnomalar" %}</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span>{% trans "To'liq statistika va hisobotlar" %}</span>
                 </div>
             </div>
         </div>
         
-        <!-- Right Side - Form -->
+        <!-- ============================================
+             RIGHT SIDE - LOGIN FORM
+             ============================================ -->
         <div class="auth-right">
+            <!-- Controls (Language + Theme) -->
             <div class="auth-controls">
                 <!-- Language Selector -->
                 <div class="language-selector">
                     <form method="post" action="{% url 'accounts:change_language' %}" style="display: inline;">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
-                        <select id="languageSelect" class="language-select" name="language" onchange="this.form.submit()">
+                        <select class="language-select" name="language" onchange="this.form.submit()">
                             <option value="uz" {% if request.LANGUAGE_CODE == 'uz' %}selected{% endif %}>O'zbekcha</option>
-                            <option value="uz-cy" {% if request.LANGUAGE_CODE == 'uz-cy' %}selected{% endif %}>Ўзбекча</option>
+                            <option value="uz-cyrl" {% if request.LANGUAGE_CODE == 'uz-cyrl' %}selected{% endif %}>Ўзбекча</option>
                             <option value="ru" {% if request.LANGUAGE_CODE == 'ru' %}selected{% endif %}>Русский</option>
                         </select>
                     </form>
@@ -59,9 +74,10 @@
                 </button>
             </div>
             
+            <!-- Form Container (Glass Morphism) -->
             <div class="auth-form-container">
-                <h2 class="form-title">{% trans "Tizimga kirish" %}</h2>
-                <p class="form-subtitle">{% trans "Login va parolingizni kiriting" %}</p>
+                <h2 class="form-title">{% trans "Xush kelibsiz!" %}</h2>
+                <p class="form-subtitle">{% trans "Hisobingizga kirish uchun ma'lumotlaringizni kiriting" %}</p>
                 
                 <!-- Messages -->
                 {% if messages %}
@@ -78,33 +94,62 @@
                 <form method="post" class="auth-form">
                     {% csrf_token %}
                     
+                    <!-- Username with icon -->
                     <div class="form-group">
                         <label class="form-label">{% trans "Login" %}</label>
-                        {{ form.username }}
+                        <div class="input-with-icon">
+                            <span class="input-icon">👤</span>
+                            <input type="text" 
+                                   name="username" 
+                                   class="form-input" 
+                                   placeholder="{% trans 'Login kiriting' %}"
+                                   value="{{ form.username.value|default:'' }}"
+                                   required 
+                                   autofocus>
+                        </div>
                         {% if form.username.errors %}
                             <span class="form-error">{{ form.username.errors.0 }}</span>
                         {% endif %}
                     </div>
                     
+                    <!-- Password with icon -->
                     <div class="form-group">
                         <label class="form-label">{% trans "Parol" %}</label>
-                        {{ form.password }}
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" 
+                                   name="password" 
+                                   class="form-input" 
+                                   placeholder="{% trans 'Parol kiriting' %}"
+                                   required>
+                        </div>
                         {% if form.password.errors %}
                             <span class="form-error">{{ form.password.errors.0 }}</span>
                         {% endif %}
                     </div>
                     
+                    <!-- Remember me -->
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember_me">
+                            <span>{% trans "Eslab qolish" %}</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Non-field errors -->
                     {% if form.non_field_errors %}
-                    <div class="form-error">
+                    <div class="alert alert-error">
                         {{ form.non_field_errors.0 }}
                     </div>
                     {% endif %}
                     
+                    <!-- Submit button -->
                     <button type="submit" class="btn btn-primary btn-block">
-                        {% trans "Kirish" %}
+                        {% trans "Kirish" %} →
                     </button>
                 </form>
                 
+                <!-- Footer -->
                 <div class="auth-footer">
                     <p>{% trans "Hisobingiz yo'qmi?" %} 
                         <a href="{% url 'accounts:register' %}" class="auth-link">{% trans "Ro'yxatdan o'ting" %}</a>
@@ -114,6 +159,7 @@
         </div>
     </div>
     
+    <!-- Scripts -->
     <script src="{% static 'js/theme.js' %}"></script>
 </body>
 </html>

@@ -580,3 +580,249 @@ input, select, textarea {
         margin-left: 0;
     }
 }
+
+
+/* ============================================
+   SIDEBAR TEXT FIX - DOIMO OQ RANGDA
+   ============================================ */
+
+/* Sidebar doimo dark bo'lgani uchun text doimo oq bo'lishi kerak */
+.sidebar {
+    background: var(--sidebar-bg);
+    color: #ffffff !important; /* Doimo oq */
+}
+
+.sidebar-tagline {
+    color: rgba(255, 255, 255, 0.7) !important; /* Doimo oq, opacity bilan */
+}
+
+.sidebar-nav .nav-item {
+    color: rgba(255, 255, 255, 0.85) !important; /* Doimo oq */
+}
+
+.sidebar-nav .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff !important; /* Hover da ham oq */
+}
+
+.sidebar-nav .nav-item.active {
+    background: var(--accent-primary);
+    color: #ffffff !important; /* Active da ham oq */
+}
+
+.sidebar-nav .nav-item .icon {
+    opacity: 0.9;
+}
+
+.user-details .user-name {
+    color: #ffffff !important; /* Doimo oq */
+    font-weight: 600;
+}
+
+.user-details .user-role {
+    color: rgba(255, 255, 255, 0.6) !important; /* Doimo oq, opacity bilan */
+    font-size: 12px;
+}
+
+/* Logo ham doimo oq */
+.logo h1 {
+    color: #ffffff !important;
+}
+
+/* Nav divider */
+.nav-divider {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   LIGHT MODE - SIDEBAR UCHUN O'ZGARISHLAR YO'Q
+   ============================================ */
+[data-theme="light"] .sidebar {
+    background: var(--sidebar-bg); /* O'zgarmaydi */
+    color: #ffffff !important; /* Oq qoladi */
+}
+
+[data-theme="light"] .sidebar-nav .nav-item {
+    color: rgba(255, 255, 255, 0.85) !important; /* Oq qoladi */
+}
+
+[data-theme="light"] .sidebar-tagline {
+    color: rgba(255, 255, 255, 0.7) !important; /* Oq qoladi */
+}
+
+[data-theme="light"] .user-details .user-name {
+    color: #ffffff !important; /* Oq qoladi */
+}
+
+[data-theme="light"] .user-details .user-role {
+    color: rgba(255, 255, 255, 0.6) !important; /* Oq qoladi */
+}
+
+/* ============================================
+   GLOBAL BACKGROUND PATTERN
+   style.css ga qo'shing (yoki alohida fayl)
+   ============================================ */
+
+/* ============================================
+   MAIN CONTENT BACKGROUND
+   ============================================ */
+.main-content {
+    background-image: 
+        /* Subtle geometric pattern */
+        linear-gradient(30deg, rgba(59, 130, 246, 0.02) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.02) 87.5%),
+        linear-gradient(150deg, rgba(59, 130, 246, 0.02) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.02) 87.5%),
+        linear-gradient(30deg, rgba(59, 130, 246, 0.02) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.02) 87.5%),
+        linear-gradient(150deg, rgba(59, 130, 246, 0.02) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.02) 87.5%),
+        /* Radial gradient overlay */
+        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+    background-size: 
+        80px 140px,
+        80px 140px,
+        80px 140px,
+        80px 140px,
+        100% 100%,
+        100% 100%;
+    background-position: 
+        0 0,
+        0 0,
+        40px 70px,
+        40px 70px,
+        center,
+        center;
+    background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat;
+}
+
+[data-theme="dark"] .main-content {
+    background-image: 
+        linear-gradient(30deg, rgba(59, 130, 246, 0.04) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.04) 87.5%),
+        linear-gradient(150deg, rgba(59, 130, 246, 0.04) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.04) 87.5%),
+        linear-gradient(30deg, rgba(59, 130, 246, 0.04) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.04) 87.5%),
+        linear-gradient(150deg, rgba(59, 130, 246, 0.04) 12%, transparent 12.5%, transparent 87%, rgba(59, 130, 246, 0.04) 87.5%),
+        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+}
+
+/* ============================================
+   OPTIONAL: RASM BACKGROUND (AGAR KERAK BO'LSA)
+   ============================================ */
+/* Agar rasm ishlatmoqchi bo'lsangiz: */
+/*
+.main-content::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/images/background-pattern.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.03;
+    z-index: -1;
+    pointer-events: none;
+}
+*/
+
+/* ============================================
+   CONTENT WRAPPER - GLASS EFFECT
+   ============================================ */
+.content-wrapper {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(5px);
+    min-height: calc(100vh - 80px);
+    position: relative;
+}
+
+/* ============================================
+   SIDEBAR ENHANCEMENT
+   ============================================ */
+.sidebar {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-header {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.sidebar-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+}
+
+/* Logo animation */
+.logo img {
+    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
+    animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+    0%, 100% {
+        filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.6));
+    }
+}
+
+/* ============================================
+   TOPBAR ENHANCEMENT
+   ============================================ */
+.topbar {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.topbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(59, 130, 246, 0.3) 20%, 
+        rgba(59, 130, 246, 0.3) 80%, 
+        transparent);
+}
+
+/* ============================================
+   CARDS ENHANCEMENT
+   ============================================ */
+.card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(59, 130, 246, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, #3b82f6, #10b981);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+    opacity: 1;
+}

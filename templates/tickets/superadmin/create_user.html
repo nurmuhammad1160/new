@@ -117,6 +117,36 @@
                         <div class="form-error">{{ form.region.errors.0 }}</div>
                         {% endif %}
                     </div>
+                    
+                    <!-- ✅ YANGI: Department (Hududiy bo'lim) -->
+                    <div class="form-group {% if form.department.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            {% trans "Hududiy bo'lim" %}
+                        </label>
+                        <input type="text" 
+                               name="department" 
+                               class="form-input" 
+                               value="{{ form.department.value|default:'' }}"
+                               placeholder="{% trans 'Masalan: IIO Toshkent shahar boshqarmasi' %}">
+                        {% if form.department.errors %}
+                        <div class="form-error">{{ form.department.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- ✅ YANGI: Position (Lavozim) -->
+                    <div class="form-group {% if form.position.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            {% trans "Lavozim" %}
+                        </label>
+                        <input type="text" 
+                               name="position" 
+                               class="form-input" 
+                               value="{{ form.position.value|default:'' }}"
+                               placeholder="{% trans 'Masalan: Tizim administratori' %}">
+                        {% if form.position.errors %}
+                        <div class="form-error">{{ form.position.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <!-- Right Column -->
@@ -151,7 +181,7 @@
                                name="password1" 
                                class="form-input" 
                                required>
-                        <small class="form-help">{% trans "Kamida 8 ta belgi" %}</small>
+                        <small class="form-help">{% trans "Kamida 6 ta belgi" %}</small>
                         {% if form.password1.errors %}
                         <div class="form-error">{{ form.password1.errors.0 }}</div>
                         {% endif %}
@@ -207,6 +237,15 @@
                                    {% if form.is_active.value or not form.is_bound %}checked{% endif %}>
                             <span>{% trans "Faol foydalanuvchi" %}</span>
                         </label>
+                    </div>
+                    
+                    <!-- ✅ INFO BOX -->
+                    <div class="info-box">
+                        <div class="info-icon">ℹ️</div>
+                        <div class="info-text">
+                            <strong>{% trans "Eslatma:" %}</strong>
+                            <p>{% trans "Hududiy bo'lim va lavozim ma'lumotlari ixtiyoriy, lekin to'ldirilsa yaxshi bo'ladi." %}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -380,6 +419,42 @@
 .checkbox-label span {
     font-size: 14px;
     font-weight: 500;
+}
+
+/* ============================================
+   INFO BOX
+   ============================================ */
+.info-box {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+}
+
+.info-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.info-text {
+    flex: 1;
+}
+
+.info-text strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--accent-primary);
+    font-size: 14px;
+}
+
+.info-text p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
 }
 
 /* ============================================

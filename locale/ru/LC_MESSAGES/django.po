@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-01 00:00+0500\n"
-"PO-Revision-Date: 2025-01-01 00:00+0500\n"
+"POT-Creation-Date: 2025-01-10 00:00+0500\n"
+"PO-Revision-Date: 2025-01-10 00:00+0500\n"
 "Last-Translator: IIV Support Team\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
@@ -18,6 +18,7 @@ msgstr ""
 
 msgid "IIO xodimlari uchun yagona texnik yordam portali"
 msgstr "Единый портал технической поддержки для сотрудников МВД"
+
 msgid "Dashboard"
 msgstr "Панель управления"
 
@@ -26,6 +27,9 @@ msgstr "Мои обращения"
 
 msgid "Barcha murojaatlar"
 msgstr "Все обращения"
+
+msgid "Tizimlar bo'yicha masullar"
+msgstr "Системные обязанности"
 
 msgid "Xodimlar"
 msgstr "Сотрудники"
@@ -119,6 +123,9 @@ msgstr "Здравствуйте"
 
 msgid "Bugungi murojaatlar"
 msgstr "Сегодняшние обращения"
+
+msgid "Bugungi"
+msgstr "Сегодня"
 
 msgid "Jami murojaatlar"
 msgstr "Всего обращений"
@@ -489,6 +496,9 @@ msgstr "Пароль"
 msgid "Meni eslab qol"
 msgstr "Запомнить меня"
 
+msgid "Eslab qolish"
+msgstr "Запомнить"
+
 msgid "Kirish"
 msgstr "Войти"
 
@@ -525,14 +535,44 @@ msgstr "Вы вышли из системы."
 msgid "IIV Texnik Yordam Tizimi"
 msgstr "Система технической поддержки МВД"
 
+msgid "IIV Texnik Yordam"
+msgstr "Техническая поддержка МВД"
+
 msgid "Bu sahifa orqali IIO xodimlari har qanday tizimlarda uchraydigan muammolar (tizim ishlamaslik holatlari, login parol olish, tarmoq uzilish va h.k.) bo'yicha texnik yordam olishlari mumkin!"
 msgstr "Через эту страницу сотрудники IIO могут получить техническую поддержку по любым возникшим проблемам в любых системах (сбои системы, получение логина и пароля, сбои в сети и т. д.)!"
+
+msgid "IIO xodimlari uchun yagona texnik yordam portali. Har qanday tizim muammolarini tez va oson hal qiling."
+msgstr "Единый портал технической поддержки для сотрудников МВД. Быстро и легко решайте любые системные проблемы."
+
+msgid "Xush kelibsiz!"
+msgstr "Добро пожаловать!"
+
+msgid "Hisobingizga kirish uchun ma'lumotlaringizni kiriting"
+msgstr "Введите свои данные для входа в аккаунт"
+
+msgid "Login kiriting"
+msgstr "Введите логин"
+
+msgid "Parol kiriting"
+msgstr "Введите пароль"
 
 msgid "Tez va samarali yechimlar"
 msgstr "Быстрые и эффективные решения"
 
+msgid "Tez va oson murojaat yuborish"
+msgstr "Быстрая и простая отправка обращений"
+
 msgid "24/7 texnik yordam"
 msgstr "Круглосуточная техническая поддержка"
+
+msgid "Xavfsiz va ishonchli tizim"
+msgstr "Безопасная и надежная система"
+
+msgid "Real-time chat va bildirishnomalar"
+msgstr "Чат и уведомления в реальном времени"
+
+msgid "To'liq statistika va hisobotlar"
+msgstr "Полная статистика и отчеты"
 
 msgid "Barcha tizimlar bir joyda"
 msgstr "Все системы в одном месте"
@@ -557,6 +597,12 @@ msgstr "С"
 
 msgid "Gacha"
 msgstr "По"
+
+msgid "Sanadan"
+msgstr "С даты"
+
+msgid "Sanagacha"
+msgstr "До даты"
 
 msgid "Statistika"
 msgstr "Статистика"
@@ -777,8 +823,8 @@ msgstr "Список сотрудников"
 msgid "Filtrlash va qidiruv"
 msgstr "Фильтрация и поиск"
 
-msgid "Ism, familiya yoki login..."
-msgstr "Имя, фамилия или логин..."
+msgid "Ism, familiya login yoki tizim..."
+msgstr "Имя, фамилия, логин или системный..."
 
 msgid "Barcha rollar"
 msgstr "Все роли"
@@ -915,6 +961,9 @@ msgstr "Подробно опишите техническую проблему"
 msgid "Bu sahifada barcha texnik murojaatlaringizni ko'rishingiz va yangilarini yaratishingiz mumkin."
 msgstr "На этой странице вы можете просмотреть все ваши технические запросы и создать новые."
 
+msgid "Bu yerda siz o'zingizning barcha texnik murojaatlaringizni ko'rishingiz, yangi murojaat yuborishingiz va muammolar ustida ishlash jarayonini kuzatishingiz mumkin."
+msgstr "Здесь вы можете просмотреть все свои технические обращения, отправить новое обращение и отслеживать процесс работы над проблемами."
+
 msgid "Hisobotlar"
 msgstr "Отчеты"
 
@@ -965,6 +1014,12 @@ msgstr "Не оценено"
 
 msgid "Ko'rish (web)"
 msgstr "Просмотр (web)"
+
+msgid "Ko'rsatish"
+msgstr "Показать"
+
+msgid "Yashirish"
+msgstr "Скрыть"
 
 msgid "Tozalash"
 msgstr "Очистить"
@@ -1065,7 +1120,6 @@ msgstr "Главная панель администратора"
 msgid "Tizimga yangi foydalanuvchi qo'shish"
 msgstr "Добавить нового пользователя в систему"
 
-
 msgid "Faol foydalanuvchi"
 msgstr "Активный пользователь"
 
@@ -1075,10 +1129,57 @@ msgstr "Список всех систем"
 msgid "Yangi tizim"
 msgstr "Новая система"
 
-
 msgid "Tizim nomi yoki tavsif..."
 msgstr "Имя или описание системы..."
 
 msgid "Tizim nomi"
 msgstr "Имя системы"
 
+msgid "Tayinlanmagan"
+msgstr "Не назначен"
+
+msgid "Lotin harflari va raqamlar"
+msgstr "Латинские буквы и цифры"
+
+msgid "Kamida 8 ta belgi"
+msgstr "Минимум 8 символов"
+
+msgid "Kirish ma'lumotlari"
+msgstr "Данные для входа"
+
+msgid "Eslatma:"
+msgstr "Примечание:"
+
+msgid "Hududiy bo'lim va lavozim ma'lumotlari ixtiyoriy, lekin to'ldirilsa yaxshi bo'ladi."
+msgstr "Данные о территориальном подразделении и должности необязательны, но желательны."
+
+msgid "Administrator"
+msgstr "Администратор"
+
+msgid "SuperAdmin"
+msgstr "Суперадминистратор"
+
+msgid "Respublika Admin"
+msgstr "Республиканский администратор"
+
+msgid "Viloyat Admin"
+msgstr "Областной администратор"
+
+
+msgid "Tez ro'yxatdan o'tish"
+msgstr "Быстрая регистрация"
+
+msgid "Xavfsiz va ishonchli"
+msgstr "Безопасный и надежный"
+
+msgid "Bepul texnik yordam"
+msgstr "Бесплатная техническая поддержка"
+
+msgid "Parolni tasdiqlang"
+msgstr "Подтвердите пароль"
+
+msgid "IIV"
+msgstr "МВД"
+
+msgid "Texnik Yordam"
+msgstr "Техническая поддержка"

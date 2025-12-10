@@ -10,6 +10,12 @@ from .forms import TicketCreateForm, TicketMessageForm, TicketRatingForm, Ticket
 from systems.models import SystemResponsible, System
 from notifications.models import Notification
 from accounts.models import User
+from accounts.utils import (
+    get_admin_systems, 
+    get_admin_regions, 
+    filter_tickets_for_admin,
+    get_admin_context
+)
 
 
 # ============================================
@@ -160,41 +166,109 @@ def create_ticket(request):
     
     return render(request, 'tickets/create_ticket.html', {'form': form})
 
-
 @login_required
 def ticket_detail(request, pk):
-    """Murojaat tafsilotlari"""
+    """Murojaat tafsilotlari - ADMIN RUXSATLARI BILAN"""
     ticket = get_object_or_404(Ticket, pk=pk)
     
-    # Ruxsat tekshirish
-    if not (request.user == ticket.user or 
-            request.user == ticket.assigned_to or 
-            request.user.is_admin()):
-        messages.error(request, _('Sizda bu murojaatni ko\'rish huquqi yo\'q.'))
-        return redirect('tickets:dashboard')
+    # ============================================
+    # RUXSAT TEKSHIRISH
+    # ============================================
     
-    # Chat xabarlari
+    # 1. Oddiy foydalanuvchi - faqat o'z ticketini
+    if request.user.role == 'user':
+        if request.user != ticket.user:
+            messages.error(request, _('Sizda bu murojaatni ko\'rish huquqi yo\'q.'))
+            return redirect('tickets:dashboard')
+    
+    # 2. Texnik - faqat o'ziga biriktirilgan ticketni
+    elif request.user.is_technician() and not request.user.is_admin():
+        if request.user != ticket.assigned_to:
+            messages.error(request, _('Sizda bu murojaatni ko\'rish huquqi yo\'q.'))
+            return redirect('tickets:technician_tickets')
+    
+    # 3. Admin - tizim va viloyat bo'yicha ruxsat tekshirish
+    elif request.user.is_admin() and not request.user.is_superadmin():
+        from accounts.utils import can_admin_see_ticket
+        
+        if not can_admin_see_ticket(request.user, ticket):
+            messages.error(request, _('Sizda bu murojaatni ko\'rish huquqi yo\'q. Bu murojaat sizning biriktirilgan tizim yoki viloyatingizga tegishli emas.'))
+            return redirect('tickets:admin_dashboard')
+    
+    # 4. SuperAdmin - hamma narsani ko'radi (ruxsat tekshirilmaydi)
+    
+    # ============================================
+    # CHAT XABARLARI
+    # ============================================
     messages_list = ticket.messages.all().order_by('created_at')
     
-    # Tarix
+    # ============================================
+    # TARIX (AUDIT LOG)
+    # ============================================
     history = ticket.history.all().order_by('timestamp')
     
-    # Yangi xabar formasi
+    # ============================================
+    # YANGI XABAR FORMASI
+    # ============================================
     message_form = TicketMessageForm()
     
-    # Baholash formasi (agar status "pending_approval" bo'lsa)
+    # ============================================
+    # BAHOLASH FORMASI
+    # ============================================
     rating_form = None
     if ticket.status == 'pending_approval' and request.user == ticket.user:
         rating_form = TicketRatingForm(instance=ticket)
     
-    # Mas'ul texniklar ro'yxati (admin uchun)
+    # ============================================
+    # MAS'UL TEXNIKLAR RO'YXATI (ADMIN UCHUN)
+    # ============================================
     available_technicians = None
-    if request.user.is_admin():
-        available_technicians = User.objects.filter(
-            role__in=['technician', 'admin'],
-            is_active=True
-        ).order_by('first_name')
     
+    if request.user.is_admin():
+        # SuperAdmin uchun - barcha texniklar
+        if request.user.is_superadmin():
+            available_technicians = User.objects.filter(
+                role__in=['technician', 'admin'],
+                is_active=True
+            ).order_by('first_name')
+        
+        # Oddiy admin uchun - faqat o'z tizimi va viloyati bo'yicha texniklar
+        else:
+            from accounts.utils import get_admin_systems, get_admin_regions
+            from systems.models import SystemResponsible
+            
+            allowed_systems = get_admin_systems(request.user)
+            allowed_regions = get_admin_regions(request.user)
+            
+            if allowed_systems is not None:
+                # Faqat ruxsat berilgan tizimlar bo'yicha texniklar
+                system_ids = allowed_systems.values_list('id', flat=True)
+                
+                technician_ids = SystemResponsible.objects.filter(
+                    system_id__in=system_ids,
+                    role_in_system='technician'
+                ).values_list('user_id', flat=True)
+                
+                available_technicians = User.objects.filter(
+                    id__in=technician_ids,
+                    is_active=True
+                ).order_by('first_name')
+                
+                # Agar viloyat admin bo'lsa - faqat o'z viloyati bo'yicha
+                if allowed_regions and allowed_regions != []:
+                    available_technicians = available_technicians.filter(
+                        region_id__in=allowed_regions
+                    )
+            else:
+                # Agar allowed_systems None bo'lsa - barcha texniklar
+                available_technicians = User.objects.filter(
+                    role__in=['technician', 'admin'],
+                    is_active=True
+                ).order_by('first_name')
+    
+    # ============================================
+    # CONTEXT
+    # ============================================
     context = {
         'ticket': ticket,
         'messages': messages_list,
@@ -205,7 +279,6 @@ def ticket_detail(request, pk):
     }
     
     return render(request, 'tickets/ticket_detail.html', context)
-
 
 @login_required
 def send_message(request, pk):
@@ -252,7 +325,7 @@ def send_message(request, pk):
 
 @login_required
 def rate_ticket(request, pk):
-    """Murojaatni baholash - YANGILANGAN VERSIYA"""
+    """Murojaatni baholash - HAR QANDAY BAHO = HAL QILINDI"""
     ticket = get_object_or_404(Ticket, pk=pk, user=request.user)
     
     if ticket.status != 'pending_approval':
@@ -265,59 +338,29 @@ def rate_ticket(request, pk):
             ticket = form.save(commit=False)
             rating = ticket.rating
             
-            # ✅ YANGI LOGIKA: Baholashga qarab status o'zgartirish
-            if rating >= 4:
-                # Yaxshi baho (4-5⭐) - HAL QILINDI
-                ticket.status = 'resolved'
-                ticket.resolved_at = timezone.now()
-                status_message = _('Murojaat hal qilindi deb belgilandi ({}⭐)').format(rating)
-                
-                # Audit log
-                TicketHistory.objects.create(
-                    ticket=ticket,
-                    changed_by=request.user,
-                    action_type='rated',
-                    old_value='pending_approval',
-                    new_value='resolved',
-                    message=status_message
-                )
-                
-                messages.success(request, _('Baholash saqlandi! Murojaat hal qilindi. Rahmat!'))
-                
-            else:
-                # Yomon baho (1-3⭐) - QAYTA OCHISH
-                ticket.status = 'reopened'
-                status_message = _('Murojaat qayta ochildi ({}⭐)').format(rating)
-                
-                # Audit log
-                TicketHistory.objects.create(
-                    ticket=ticket,
-                    changed_by=request.user,
-                    action_type='reopened',
-                    old_value='pending_approval',
-                    new_value='reopened',
-                    message=status_message
-                )
-                
-                # Texnikga notification
-                if ticket.assigned_to:
-                    Notification.objects.create(
-                        user=ticket.assigned_to,
-                        notification_type='ticket_reopened',
-                        title=_('Murojaat qayta ochildi'),
-                        text=_('Foydalanuvchi {}⭐ baho berdi va murojaat qayta ochildi: {}').format(
-                            rating, 
-                            ticket.get_ticket_number()
-                        ),
-                        url=f'/tickets/{ticket.id}/'
-                    )
-                
-                messages.warning(
-                    request, 
-                    _('Baholash saqlandi. Murojaat qayta ochildi. Texnik yana ko\'rib chiqadi.')
-                )
-            
+            # ✅ YANGI LOGIKA: Har qanday baho = HAL QILINDI
+            ticket.status = 'resolved'
+            ticket.resolved_at = timezone.now()
             ticket.save()
+            
+            # Audit log
+            TicketHistory.objects.create(
+                ticket=ticket,
+                changed_by=request.user,
+                action_type='rated',
+                old_value='pending_approval',
+                new_value='resolved',
+                message=_('Foydalanuvchi {}⭐ baho berdi. Murojaat hal qilindi.').format(rating)
+            )
+            
+            # ✅ Message (har doim hal qilindi)
+            if rating >= 4:
+                messages.success(request, _('Baholash uchun rahmat! Murojaat hal qilindi.'))
+            else:
+                messages.success(
+                    request, 
+                    _('Baholash uchun rahmat! Agar muammo hal bo\'lmagan bo\'lsa, "Qayta ochish" tugmasini bosing.')
+                )
             
             return redirect('tickets:ticket_detail', pk=pk)
     
@@ -535,16 +578,24 @@ def change_ticket_status(request, pk):
 # ADMIN VIEWS
 # ============================================
 
+
 @login_required
 @require_admin
 def admin_dashboard(request):
-    """Admin dashboard - barcha ticketlar va statistika"""
+    """Admin dashboard - TIZIM VA VILOYAT BO'YICHA FILTRLANGAN"""
+    
     # Vaqt davri
     today = timezone.now().date()
     week_ago = today - timedelta(days=7)
     month_ago = today - timedelta(days=30)
     
+    # ✅ Admin context
+    from accounts.utils import get_admin_context, filter_tickets_for_admin
+    admin_ctx = get_admin_context(request.user)
+    
+    # ✅ Faqat ruxsat berilgan ticketlar
     tickets = Ticket.objects.all()
+    tickets = filter_tickets_for_admin(tickets, request.user)
     
     # Umumiy statistika
     stats = {
@@ -579,23 +630,54 @@ def admin_dashboard(request):
         total_tickets=Count('id')
     ).order_by('-avg_rating')[:10]
     
-    # Filter
+    # ✅ Filter form
     filter_form = TicketFilterForm(request.GET)
+    
+    # ✅ Filter formani cheklash (admin uchun)
+    if admin_ctx:
+        # Tizimlarni cheklash
+        if admin_ctx['allowed_systems'] is not None:
+            filter_form.fields['system'].queryset = admin_ctx['allowed_systems']
+        
+        # Viloyatlarni cheklash
+        if admin_ctx['allowed_regions'] is not None and admin_ctx['allowed_regions'] != []:
+            from accounts.models import Region
+            filter_form.fields['region'].queryset = Region.objects.filter(
+                id__in=admin_ctx['allowed_regions']
+            )
+    
+    # ✅ Filtrlash
     filtered_tickets = tickets
     
     if filter_form.is_valid():
         if filter_form.cleaned_data.get('system'):
             filtered_tickets = filtered_tickets.filter(system=filter_form.cleaned_data['system'])
+        
+        # ✅ Region filter
+        if filter_form.cleaned_data.get('region'):
+            filtered_tickets = filtered_tickets.filter(region=filter_form.cleaned_data['region'])
+        
         if filter_form.cleaned_data.get('status'):
             filtered_tickets = filtered_tickets.filter(status=filter_form.cleaned_data['status'])
+        
         if filter_form.cleaned_data.get('priority'):
             filtered_tickets = filtered_tickets.filter(priority=filter_form.cleaned_data['priority'])
+        
+        if filter_form.cleaned_data.get('assigned_to'):
+            filtered_tickets = filtered_tickets.filter(assigned_to=filter_form.cleaned_data['assigned_to'])
+        
         if filter_form.cleaned_data.get('date_from'):
             filtered_tickets = filtered_tickets.filter(created_at__date__gte=filter_form.cleaned_data['date_from'])
+        
         if filter_form.cleaned_data.get('date_to'):
             filtered_tickets = filtered_tickets.filter(created_at__date__lte=filter_form.cleaned_data['date_to'])
     
+    # ✅ Pagination (optional)
     filtered_tickets = filtered_tickets.order_by('-created_at')[:100]
+    
+    # ✅ All regions for template
+    from accounts.models import Region
+    all_regions = Region.objects.filter(is_active=True).order_by('name')
     
     context = {
         'stats': stats,
@@ -604,16 +686,24 @@ def admin_dashboard(request):
         'technician_stats': technician_stats,
         'tickets': filtered_tickets,
         'filter_form': filter_form,
+        'admin_context': admin_ctx,
+        'all_regions': all_regions,  # ✅ Template uchun
     }
     
     return render(request, 'tickets/admin_dashboard.html', context)
 
-
 @login_required
 @require_admin
-def assign_ticket(request, pk):
-    """Ticketni texnikga biriktirish"""
-    ticket = get_object_or_404(Ticket, pk=pk)
+def assign_ticket(request, ticket_id):
+    """Ticketni texnikga biriktirish - RUXSAT TEKSHIRISH"""
+    ticket = get_object_or_404(Ticket, pk=ticket_id)
+    
+    # ✅ YANGI: Admin ruxsat tekshirish
+    from accounts.utils import can_admin_see_ticket
+    
+    if request.user.is_admin() and not can_admin_see_ticket(request.user, ticket):
+        messages.error(request, _('Sizda bu murojaatni o\'zgartirish huquqi yo\'q.'))
+        return redirect('tickets:admin_dashboard')
     
     if request.method == 'POST':
         new_assigned_id = request.POST.get('assigned_to')
@@ -636,7 +726,7 @@ def assign_ticket(request, pk):
                 message=_('Mas\'ul xodim o\'zgartirildi')
             )
             
-            # Notification (yangi mas'ul xodimga)
+            # Notification
             Notification.objects.create(
                 user=new_assigned,
                 notification_type='ticket_assigned',
@@ -647,7 +737,7 @@ def assign_ticket(request, pk):
             
             messages.success(request, _('Mas\'ul xodim o\'zgartirildi.'))
     
-    return redirect('tickets:ticket_detail', pk=pk)
+    return redirect('tickets:ticket_detail', pk=ticket_id)
 
 
 @login_required
