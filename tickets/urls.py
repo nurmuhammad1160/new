@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:pk>/rate/', views.rate_ticket, name='rate_ticket'),
     path('<int:pk>/reopen/', views.reopen_ticket, name='reopen_ticket'),
     path('system-responsibles/', views.system_responsibles_view, name='system_responsibles'),
+    path('system/<int:system_id>/responsibles/', views.system_responsibles_modal_view, name='system_responsibles_modal'),
     
     # ============================================
     # TECHNICIAN VIEWS
@@ -58,4 +59,11 @@ urlpatterns = [
     # AJAX
     path('superadmin/users/search-ajax/', views_superadmin.superadmin_users_search_ajax, name='superadmin_users_search_ajax'),
     path('api/users/search/', views_superadmin.api_users_search, name='api_users_search'),
+
+    # Department Management
+    path('superadmin/departments/', views_superadmin.superadmin_departments_list, name='superadmin_departments_list'),
+    path('superadmin/departments/create/', views_superadmin.superadmin_department_create, name='superadmin_department_create'),
+    path('superadmin/departments/<int:dept_id>/edit/', views_superadmin.superadmin_department_edit, name='superadmin_department_edit'),
+    path('superadmin/departments/<int:dept_id>/toggle/', views_superadmin.superadmin_department_toggle_status, name='superadmin_department_toggle_status'),
+    path('superadmin/departments/<int:dept_id>/delete/', views_superadmin.superadmin_department_delete, name='superadmin_department_delete'),
 ]

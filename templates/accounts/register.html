@@ -193,5 +193,64 @@
     </div>
     
     <script src="{% static 'js/theme.js' %}"></script>
+    
+    <!-- Viloyatga qarab bo'limlarni yuklash uchun JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const regionSelect = document.getElementById('id_region');
+            const departmentSelect = document.getElementById('id_department');
+            
+            if (regionSelect && departmentSelect) {
+                // Dastlab bo'limni o'chirish
+                const savedDepartment = departmentSelect.value;
+                
+                // Viloyat o'zgarganda
+                regionSelect.addEventListener('change', function() {
+                    const regionId = this.value;
+                    
+                    if (!regionId) {
+                        // Viloyat tanlanmagan bo'lsa
+                        departmentSelect.innerHTML = '<option value="">---------</option>';
+                        departmentSelect.disabled = true;
+                        return;
+                    }
+                    
+                    // Bo'limlarni yuklash
+                    fetch(`/accounts/get-departments/${regionId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            departmentSelect.innerHTML = '<option value="">---------</option>';
+                            
+                            data.departments.forEach(dept => {
+                                const option = document.createElement('option');
+                                option.value = dept.id;
+                                option.textContent = dept.name;
+                                departmentSelect.appendChild(option);
+                            });
+                            
+                            departmentSelect.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error('Xatolik:', error);
+                            departmentSelect.innerHTML = '<option value="">Xatolik yuz berdi</option>';
+                        });
+                });
+                
+                // Agar viloyat tanlangan bo'lsa, bo'limlarni yuklash
+                if (regionSelect.value) {
+                    regionSelect.dispatchEvent(new Event('change'));
+                    
+                    // Saqlangan bo'limni tiklash
+                    if (savedDepartment) {
+                        setTimeout(() => {
+                            departmentSelect.value = savedDepartment;
+                        }, 500);
+                    }
+                } else {
+                    departmentSelect.disabled = true;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

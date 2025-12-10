@@ -78,6 +78,8 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['avatar'].required = False
         self.fields['department'].required = False
 
+        self.fields['department'].queryset = Department.objects.filter(is_active=True)
+
 
 class UserLoginForm(AuthenticationForm):
     """Foydalanuvchi kirish formasi"""

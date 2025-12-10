@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Yangi bo'lim qo'shish" %}{% endblock %}
+
+{% block page_title %}{% trans "Yangi bo'lim qo'shish" %} ➕{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <!-- Info Card -->
+    <div class="card" style="margin-bottom: 30px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span style="font-size: 48px;">🏢</span>
+            <div>
+                <h3 style="margin: 0 0 5px 0; font-size: 20px;">{% trans "Hududiy bo'lim yaratish" %}</h3>
+                <p style="margin: 0; color: var(--text-secondary);">
+                    {% trans "Yangi hududiy bo'lim qo'shish uchun quyidagi ma'lumotlarni to'ldiring" %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">{% trans "Viloyat" %} *</label>
+                <select name="region" class="form-select" required>
+                    <option value="">{% trans "Viloyatni tanlang" %}</option>
+                    {% for region in all_regions %}
+                    <option value="{{ region.id }}">{{ region.name }}</option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">{% trans "Bo'lim qaysi viloyatga tegishli ekanligini tanlang" %}</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{% trans "Bo'lim nomi" %} *</label>
+                <input type="text" 
+                       name="name" 
+                       class="form-input" 
+                       placeholder="{% trans 'Masalan: Toshkent shahar IIO' %}"
+                       required>
+                <small class="text-muted">{% trans "Hududiy bo'limning to'liq nomini kiriting" %}</small>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" 
+                           name="is_active" 
+                           checked
+                           style="width: 18px; height: 18px; cursor: pointer;">
+                    <span class="form-label" style="margin: 0;">{% trans "Bo'lim faol" %}</span>
+                </label>
+                <small class="text-muted">{% trans "Faol bo'limlar ro'yxatda ko'rinadi va foydalanuvchilar tanlashi mumkin" %}</small>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    ✓ {% trans "Bo'limni saqlash" %}
+                </button>
+                <a href="{% url 'tickets:superadmin_departments_list' %}" class="btn btn-secondary" style="flex: 1;">
+                    ✕ {% trans "Bekor qilish" %}
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Card -->
+    <div class="card" style="margin-top: 20px; border-left: 3px solid var(--accent-info);">
+        <h4 style="margin: 0 0 10px 0; font-size: 16px; color: var(--accent-info);">
+            💡 {% trans "Maslahat" %}
+        </h4>
+        <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+            <li>{% trans "Bo'lim nomi aniq va tushunarli bo'lishi kerak" %}</li>
+            <li>{% trans "Bir viloyatda bir nechta bo'lim bo'lishi mumkin" %}</li>
+            <li>{% trans "Faol emas qilingan bo'limlar yangi foydalanuvchilar tanlay olmaydi" %}</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-muted {
+    color: var(--text-secondary);
+    font-size: 13px;
+    display: block;
+    margin-top: 5px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+</style>
+{% endblock %}

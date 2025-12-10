@@ -547,8 +547,8 @@ msgstr "Единый портал технической поддержки дл
 msgid "Xush kelibsiz!"
 msgstr "Добро пожаловать!"
 
-msgid "Hisobingizga kirish uchun ma'lumotlaringizni kiriting"
-msgstr "Введите свои данные для входа в аккаунт"
+msgid "Tizimga kirish uchun ma'lumotlarni kiriting."
+msgstr "Введите данные для входа."
 
 msgid "Login kiriting"
 msgstr "Введите логин"
@@ -1183,3 +1183,97 @@ msgstr "МВД"
 
 msgid "Texnik Yordam"
 msgstr "Техническая поддержка"
+
+
+msgid "Har bir tizim bo'yicha mas'ul adminlar va texniklar"
+msgstr "Администраторы и технические специалисты, ответственные за каждую систему."
+
+msgid "Mas'ul Admin"
+msgstr "Ответственный администратор"
+
+
+msgid "Texnik xodimlar"
+msgstr "Технический персонал"
+
+
+msgid "Barcha mas'ullarni ko'rish"
+msgstr "Посмотреть всех ответственных"
+
+
+msgid "Texnik xodimlar belgilanmagan"
+msgstr "Технический персонал не указан"
+
+
+msgid "Hududiy bo'limlar"
+msgstr "Региональные отделения"
+
+
+msgid "Barcha hududiy bo'limlarni boshqarish"
+msgstr "Управление всеми региональными отделами."
+
+msgid "Yangi bo'lim qo'shish"
+msgstr "Добавить новый раздел"
+
+msgid "Bo'lim nomi"
+msgstr "Название раздела"
+
+msgid "Bo'limlar"
+msgstr "Отделы"
+
+msgid "shaxar bo'lim"
+msgstr "городской департамент"
+
+msgid "Bo'lim ma'lumotlarini tahrirlash"
+msgstr "Редактировать информацию раздела"
+
+
+msgid "Faol bo'limlar ro'yxatda ko'rinadi"
+msgstr "Активные разделы отображаются в списке."
+
+msgid "Xavfli zona"
+msgstr "Опасная зона"
+
+
+msgid "Bo'limni butunlay o'chirish mumkin. Bu amalni bekor qilib bo'lmaydi!"
+msgstr "Вы можете удалить раздел навсегда. Это действие необратимо!"
+
+
+msgid "Bo'limni o'chirish"
+msgstr "Удалить раздел"
+
+
+msgid "Xavfli amal!"
+msgstr "Опасная практика!"
+
+
+msgid "Siz haqiqatan ham ushbu bo'limni butunlay o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi!"
+msgstr "Вы уверены, что хотите навсегда удалить этот раздел? Это действие необратимо!"
+
+
+msgid "O'chirishni tasdiqlash"
+msgstr "Подтвердить удаление"
+
+msgid "Davom etish uchun quyidagi tugmani bosing. Bu amal qaytarilmaydi"
+msgstr "Нажмите кнопку ниже, чтобы продолжить. Это действие необратимо."
+
+msgid "Ha, o'chirish"
+msgstr "Да, удалить."
+
+msgid "Yo'q, bekor qilish"
+msgstr "Нет, отменить"
+
+msgid "Eslatma"
+msgstr "Напоминание"
+
+msgid "Bo'lim o'chirilgandan keyin qayta tiklab bo'lmaydi"
+msgstr "После удаления раздел восстановить невозможно."
+
+msgid "Agar bo'limda foydalanuvchilar bo'lsa, avval ularni boshqa joyga o'tkazing"
+msgstr "Если в разделе уже есть пользователи, сначала переместите их в другое место."
+
+msgid "Bo'lim o'chirilgandan so'ng barcha bog'liq ma'lumotlar yo'qoladi"
+msgstr "После удаления раздела все связанные данные будут потеряны."
+
+msgid "Bo'limni tahrirlash"
+msgstr "Редактировать раздел"
+

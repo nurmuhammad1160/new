@@ -472,6 +472,24 @@ def system_responsibles_view(request):
     
     return render(request, 'tickets/system_responsibles.html', context)
 
+@login_required
+def system_responsibles_modal_view(request, system_id):
+    system = get_object_or_404(System, id=system_id)
+    
+    # Shu tizimga tegishli BARCHA mas'ullar (Admin va Texniklar)
+    # Viloyatlar bo'yicha tartiblaymiz
+    responsibles = SystemResponsible.objects.filter(
+        system=system
+    ).select_related('user', 'region').order_by('role_in_system', 'region__name')
+    
+    context = {
+        'system': system,
+        'responsibles': responsibles
+    }
+    
+    # Biz to'liq sahifa emas, faqat modal ichini qaytaramiz
+    return render(request, 'tickets/partials/modal_content.html', context)
+
 
 # ============================================
 # TECHNICIAN VIEWS
@@ -694,9 +712,9 @@ def admin_dashboard(request):
 
 @login_required
 @require_admin
-def assign_ticket(request, ticket_id):
+def assign_ticket(request, pk):
     """Ticketni texnikga biriktirish - RUXSAT TEKSHIRISH"""
-    ticket = get_object_or_404(Ticket, pk=ticket_id)
+    ticket = get_object_or_404(Ticket, pk=pk)
     
     # ✅ YANGI: Admin ruxsat tekshirish
     from accounts.utils import can_admin_see_ticket
@@ -737,7 +755,7 @@ def assign_ticket(request, ticket_id):
             
             messages.success(request, _('Mas\'ul xodim o\'zgartirildi.'))
     
-    return redirect('tickets:ticket_detail', pk=ticket_id)
+    return redirect('tickets:ticket_detail', pk=pk)
 
 
 @login_required

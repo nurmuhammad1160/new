@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Bo'limni o'chirish" %}{% endblock %}
+
+{% block page_title %}{% trans "Bo'limni o'chirish" %} 🗑️{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <!-- Warning Card -->
+    <div class="card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%); border-left: 4px solid var(--accent-danger); margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span style="font-size: 64px;">⚠️</span>
+            <div>
+                <h2 style="margin: 0 0 10px 0; color: var(--accent-danger); font-size: 24px;">
+                    {% trans "Xavfli amal!" %}
+                </h2>
+                <p style="margin: 0; color: var(--text-primary); line-height: 1.6;">
+                    {% trans "Siz haqiqatan ham ushbu bo'limni butunlay o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi!" %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Info Card -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 class="card-title">{% trans "Bo'lim ma'lumotlari" %}</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                <span style="color: var(--text-secondary);">{% trans "Bo'lim nomi" %}:</span>
+                <strong style="font-size: 16px;">{{ department.name }}</strong>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                <span style="color: var(--text-secondary);">{% trans "Viloyat" %}:</span>
+                <strong style="font-size: 16px;">📍 {{ department.region.name }}</strong>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                <span style="color: var(--text-secondary);">{% trans "Foydalanuvchilar" %}:</span>
+                <strong style="font-size: 16px; color: {% if users_count > 0 %}var(--accent-danger){% else %}var(--accent-success){% endif %};">
+                    {{ users_count }} {% trans "ta" %}
+                </strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check if can delete -->
+    {% if users_count > 0 %}
+    <!-- Cannot Delete -->
+    <div class="card" style="border-left: 4px solid var(--accent-warning);">
+        <h4 style="margin: 0 0 15px 0; color: var(--accent-warning); font-size: 18px;">
+            🚫 {% trans "O'chirib bo'lmaydi" %}
+        </h4>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+            {% trans "Bu bo'limda foydalanuvchilar mavjud. Avval ularni boshqa bo'limga o'tkazing yoki o'chiring." %}
+        </p>
+        <div style="display: flex; gap: 15px;">
+            <a href="{% url 'tickets:superadmin_department_edit' department.id %}" class="btn btn-primary" style="flex: 1;">
+                ← {% trans "Bo'limga qaytish" %}
+            </a>
+            <a href="{% url 'tickets:superadmin_users_list' %}?department={{ department.id }}" class="btn btn-secondary" style="flex: 1;">
+                👥 {% trans "Foydalanuvchilarni ko'rish" %}
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <!-- Can Delete -->
+    <div class="card">
+        <h4 style="margin: 0 0 15px 0; font-size: 18px;">
+            {% trans "O'chirishni tasdiqlash" %}
+        </h4>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+            {% trans "Davom etish uchun quyidagi tugmani bosing. Bu amal qaytarilmaydi!" %}
+        </p>
+
+        <form method="post" style="display: flex; gap: 15px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" style="flex: 1;">
+                🗑️ {% trans "Ha, o'chirish" %}
+            </button>
+            <a href="{% url 'tickets:superadmin_department_edit' department.id %}" class="btn btn-secondary" style="flex: 1;">
+                ✕ {% trans "Yo'q, bekor qilish" %}
+            </a>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Info Card -->
+    <div class="card" style="margin-top: 20px; border-left: 3px solid var(--accent-info);">
+        <h4 style="margin: 0 0 10px 0; font-size: 16px; color: var(--accent-info);">
+            💡 {% trans "Eslatma" %}
+        </h4>
+        <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+            <li>{% trans "Bo'lim o'chirilgandan keyin qayta tiklab bo'lmaydi" %}</li>
+            <li>{% trans "Agar bo'limda foydalanuvchilar bo'lsa, avval ularni boshqa joyga o'tkazing" %}</li>
+            <li>{% trans "Bo'lim o'chirilgandan so'ng barcha bog'liq ma'lumotlar yo'qoladi" %}</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.btn-danger {
+    background: var(--accent-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}

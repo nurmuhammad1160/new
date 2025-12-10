@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Bo'limni tahrirlash" %}{% endblock %}
+
+{% block page_title %}{% trans "Bo'limni tahrirlash" %} ✏️{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+        <!-- Left Column - Edit Form -->
+        <div>
+            <!-- Current Info -->
+            <div class="card" style="margin-bottom: 30px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <span style="font-size: 48px;">🏢</span>
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 20px;">{{ department.name }}</h3>
+                        <p style="margin: 0; color: var(--text-secondary);">
+                            📍 {{ department.region.name }}
+                        </p>
+                    </div>
+                    <div>
+                        {% if department.is_active %}
+                            <span class="badge badge-success" style="font-size: 14px; padding: 6px 12px;">✓ {% trans "Faol" %}</span>
+                        {% else %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; font-size: 14px; padding: 6px 12px;">✕ {% trans "Faol emas" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <div class="card">
+                <h3 class="card-title">{% trans "Bo'lim ma'lumotlarini tahrirlash" %}</h3>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Viloyat" %} *</label>
+                        <select name="region" class="form-select" required>
+                            <option value="">{% trans "Viloyatni tanlang" %}</option>
+                            {% for region in all_regions %}
+                            <option value="{{ region.id }}" {% if region.id == department.region.id %}selected{% endif %}>
+                                {{ region.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">{% trans "Bo'lim nomi" %} *</label>
+                        <input type="text" 
+                               name="name" 
+                               class="form-input" 
+                               value="{{ department.name }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" 
+                                   name="is_active" 
+                                   {% if department.is_active %}checked{% endif %}
+                                   style="width: 18px; height: 18px; cursor: pointer;">
+                            <span class="form-label" style="margin: 0;">{% trans "Bo'lim faol" %}</span>
+                        </label>
+                        <small class="text-muted">{% trans "Faol bo'limlar ro'yxatda ko'rinadi" %}</small>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            ✓ {% trans "Saqlash" %}
+                        </button>
+                        <a href="{% url 'tickets:superadmin_departments_list' %}" class="btn btn-secondary" style="flex: 1;">
+                            ← {% trans "Orqaga" %}
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card" style="margin-top: 30px; border-left: 3px solid var(--accent-danger);">
+                <h4 style="margin: 0 0 15px 0; color: var(--accent-danger);">
+                    ⚠️ {% trans "Xavfli zona" %}
+                </h4>
+                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                    {% trans "Bo'limni butunlay o'chirish mumkin. Bu amalni bekor qilib bo'lmaydi!" %}
+                </p>
+                <a href="{% url 'tickets:superadmin_department_delete' department.id %}" 
+                   class="btn btn-danger">
+                    🗑️ {% trans "Bo'limni o'chirish" %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Column - Statistics -->
+        <div>
+            <!-- Statistics Card -->
+            <div class="card">
+                <h3 class="card-title">{% trans "Statistika" %}</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="padding: 15px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                        <div style="font-size: 28px; font-weight: 700; color: var(--accent-primary);">
+                            {{ users_count }}
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 13px;">
+                            {% trans "Foydalanuvchilar" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users List -->
+            {% if users_list %}
+            <div class="card" style="margin-top: 20px;">
+                <h3 class="card-title">{% trans "Foydalanuvchilar" %}</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    {% for user in users_list %}
+                    <a href="{% url 'tickets:superadmin_user_detail' user.id %}" 
+                       style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); transition: var(--transition); text-decoration: none; color: inherit;">
+                        {% if user.photo %}
+                            <img src="{{ user.photo.url }}" 
+                                 style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                            <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--accent-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">
+                                {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            </div>
+                        {% endif %}
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {{ user.get_full_name }}
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                {{ user.get_role_display }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    
+                    {% if users_count > 10 %}
+                    <div style="text-align: center; padding: 10px; color: var(--text-secondary); font-size: 13px;">
+                        {% trans "va yana" %} {{ users_count|add:"-10" }} {% trans "ta..." %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-muted {
+    color: var(--text-secondary);
+    font-size: 13px;
+    display: block;
+    margin-top: 5px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+
+@media (max-width: 768px) {
+    [style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}

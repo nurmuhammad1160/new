@@ -4,10 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm, PasswordChangeForm
-from .models import User
+from .models import User, Department
 from django.utils.translation import activate
 from django.conf import settings
 from django.utils import translation
+from django.http import JsonResponse
+
 
 def change_language(request):
     """Til o'zgartirish view"""
@@ -170,3 +172,19 @@ def change_language(request):
             return redirect(next_url)
     
     return redirect('tickets:dashboard')
+
+def get_departments(request, region_id):
+    """Viloyatga qarab bo'limlarni qaytarish (AJAX uchun)"""
+    try:
+        departments = Department.objects.filter(
+            region_id=region_id, 
+            is_active=True
+        ).values('id', 'name')
+        
+        return JsonResponse({
+            'departments': list(departments)
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=400)

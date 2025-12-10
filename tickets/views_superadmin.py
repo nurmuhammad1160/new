@@ -10,7 +10,7 @@ from datetime import timedelta
 import random
 import string
 
-from accounts.models import User, Region
+from accounts.models import User, Region, Department
 from .models import Ticket, TicketHistory, TicketMessage
 from systems.models import System, SystemResponsible
 from notifications.models import Notification
@@ -625,3 +625,200 @@ def api_users_search(request):
         'success': True,
         'results': results
     })
+
+
+# tickets/views_superadmin.py ga qo'shish uchun
+
+@login_required
+@require_superadmin
+def superadmin_departments_list(request):
+    """Barcha bo'limlar ro'yxati"""
+    departments = Department.objects.all().select_related('region').order_by('region__name', 'name')
+    
+    # Filter by region
+    region_id = request.GET.get('region')
+    if region_id:
+        departments = departments.filter(region_id=region_id)
+    
+    # Filter by status
+    status = request.GET.get('status')
+    if status == 'active':
+        departments = departments.filter(is_active=True)
+    elif status == 'inactive':
+        departments = departments.filter(is_active=False)
+    
+    # Search
+    search = request.GET.get('search', '')
+    if search:
+        departments = departments.filter(name__icontains=search)
+    
+    # Har bir bo'lim uchun statistika
+    departments_data = []
+    for dept in departments:
+        users_count = User.objects.filter(department=dept).count()
+        tickets_count = Ticket.objects.filter(region=dept.region).count()
+        
+        departments_data.append({
+            'department': dept,
+            'users_count': users_count,
+            'tickets_count': tickets_count,
+        })
+    
+    all_regions = Region.objects.filter(is_active=True).order_by('name')
+    
+    context = {
+        'departments_data': departments_data,
+        'all_regions': all_regions,
+        'search': search,
+        'region_id': region_id,
+        'status': status,
+    }
+    
+    return render(request, 'tickets/superadmin/departments_list.html', context)
+
+
+@login_required
+@require_superadmin
+def superadmin_department_create(request):
+    """Yangi bo'lim yaratish"""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        region_id = request.POST.get('region')
+        is_active = request.POST.get('is_active') == 'on'
+        
+        if not name or not region_id:
+            messages.error(request, _('Barcha majburiy maydonlarni to\'ldiring.'))
+            return redirect('tickets:superadmin_department_create')
+        
+        try:
+            region = Region.objects.get(pk=region_id)
+            department = Department.objects.create(
+                name=name,
+                region=region,
+                is_active=is_active
+            )
+            
+            messages.success(
+                request,
+                _('Yangi bo\'lim yaratildi: {} - {}').format(region.name, name)
+            )
+            
+            return redirect('tickets:superadmin_departments_list')
+        except Region.DoesNotExist:
+            messages.error(request, _('Viloyat topilmadi.'))
+        except Exception as e:
+            messages.error(request, _('Xatolik: {}').format(str(e)))
+    
+    all_regions = Region.objects.filter(is_active=True).order_by('name')
+    
+    context = {
+        'all_regions': all_regions,
+    }
+    
+    return render(request, 'tickets/superadmin/department_create.html', context)
+
+
+@login_required
+@require_superadmin
+def superadmin_department_edit(request, dept_id):
+    """Bo'limni tahrirlash"""
+    department = get_object_or_404(Department, pk=dept_id)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        region_id = request.POST.get('region')
+        is_active = request.POST.get('is_active') == 'on'
+        
+        if not name or not region_id:
+            messages.error(request, _('Barcha majburiy maydonlarni to\'ldiring.'))
+            return redirect('tickets:superadmin_department_edit', dept_id=dept_id)
+        
+        try:
+            region = Region.objects.get(pk=region_id)
+            department.name = name
+            department.region = region
+            department.is_active = is_active
+            department.save()
+            
+            messages.success(
+                request,
+                _('Bo\'lim ma\'lumotlari saqlandi: {} - {}').format(region.name, name)
+            )
+            
+            return redirect('tickets:superadmin_departments_list')
+        except Region.DoesNotExist:
+            messages.error(request, _('Viloyat topilmadi.'))
+        except Exception as e:
+            messages.error(request, _('Xatolik: {}').format(str(e)))
+    
+    all_regions = Region.objects.filter(is_active=True).order_by('name')
+    
+    # Statistika
+    users_count = User.objects.filter(department=department).count()
+    users_list = User.objects.filter(department=department)[:10]
+    
+    context = {
+        'department': department,
+        'all_regions': all_regions,
+        'users_count': users_count,
+        'users_list': users_list,
+    }
+    
+    return render(request, 'tickets/superadmin/department_edit.html', context)
+
+
+@login_required
+@require_superadmin
+def superadmin_department_toggle_status(request, dept_id):
+    """Bo'limni aktivlashtirish/o'chirish"""
+    department = get_object_or_404(Department, pk=dept_id)
+    
+    department.is_active = not department.is_active
+    department.save()
+    
+    status_text = _('aktivlashtirildi') if department.is_active else _('o\'chirildi')
+    messages.success(
+        request,
+        _('Bo\'lim {}: {} - {}').format(status_text, department.region.name, department.name)
+    )
+    
+    return redirect('tickets:superadmin_departments_list')
+
+
+@login_required
+@require_superadmin
+def superadmin_department_delete(request, dept_id):
+    """Bo'limni o'chirish"""
+    department = get_object_or_404(Department, pk=dept_id)
+    
+    # Foydalanuvchilar bormi tekshirish
+    users_count = User.objects.filter(department=department).count()
+    
+    if users_count > 0:
+        messages.error(
+            request,
+            _('Bu bo\'limda {} ta foydalanuvchi mavjud. Avval ularni boshqa bo\'limga o\'tkazing.').format(users_count)
+        )
+        return redirect('tickets:superadmin_department_edit', dept_id=dept_id)
+    
+    if request.method == 'POST':
+        dept_name = f"{department.region.name} - {department.name}"
+        department.delete()
+        
+        messages.success(request, _('Bo\'lim o\'chirildi: {}').format(dept_name))
+        return redirect('tickets:superadmin_departments_list')
+    
+    context = {
+        'department': department,
+        'users_count': users_count,
+    }
+    
+    return render(request, 'tickets/superadmin/department_delete_confirm.html', context)
+
+
+# tickets/urls.py ga qo'shish kerak:
+# path('superadmin/departments/', views_superadmin.superadmin_departments_list, name='superadmin_departments_list'),
+# path('superadmin/departments/create/', views_superadmin.superadmin_department_create, name='superadmin_department_create'),
+# path('superadmin/departments/<int:dept_id>/edit/', views_superadmin.superadmin_department_edit, name='superadmin_department_edit'),
+# path('superadmin/departments/<int:dept_id>/toggle/', views_superadmin.superadmin_department_toggle_status, name='superadmin_department_toggle_status'),
+# path('superadmin/departments/<int:dept_id>/delete/', views_superadmin.superadmin_department_delete, name='superadmin_department_delete'),

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Hududiy bo'limlar" %}{% endblock %}
+
+{% block page_title %}{% trans "Hududiy bo'limlar" %} 🏢{% endblock %}
+
+{% block content %}
+
+<!-- Header with Actions -->
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+
+    <div>
+        <div style="margin-top: 10px; margin-bottom: 5px;">
+            <a href="{% url 'tickets:superadmin_dashboard' %}" class="btn btn-secondary">
+                ← {% trans "Orqaga" %}
+            </a>
+        </div>
+        <p class="text-muted" style="margin: 0;">{% trans "Barcha hududiy bo'limlarni boshqarish" %}</p>
+    </div>
+    <a href="{% url 'tickets:superadmin_department_create' %}" class="btn btn-primary">
+        ➕ {% trans "Yangi bo'lim qo'shish" %}
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 30px;">
+    <form method="get" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end;">
+        <div class="form-group" style="margin: 0;">
+            <label class="form-label">{% trans "Viloyat" %}</label>
+            <select name="region" class="form-select">
+                <option value="">{% trans "Barchasi" %}</option>
+                {% for region in all_regions %}
+                <option value="{{ region.id }}" {% if region_id == region.id|stringformat:"s" %}selected{% endif %}>
+                    {{ region.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="margin: 0;">
+            <label class="form-label">{% trans "Holat" %}</label>
+            <select name="status" class="form-select">
+                <option value="">{% trans "Barchasi" %}</option>
+                <option value="active" {% if status == 'active' %}selected{% endif %}>{% trans "Faol" %}</option>
+                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>{% trans "Faol emas" %}</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin: 0;">
+            <label class="form-label">{% trans "Qidiruv" %}</label>
+            <input type="text" name="search" class="form-input" placeholder="{% trans 'Bo\'lim nomi...' %}" value="{{ search }}">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">
+                🔍 {% trans "Qidirish" %}
+            </button>
+            <a href="{% url 'tickets:superadmin_departments_list' %}" class="btn btn-secondary">
+                ↻ {% trans "Tozalash" %}
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Departments List -->
+<div class="card">
+    <h3 class="card-title">{% trans "Bo'limlar" %} ({{ departments_data|length }})</h3>
+    
+    {% if departments_data %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Bo'lim nomi" %}</th>
+                    <th>{% trans "Viloyat" %}</th>
+                    <th style="text-align: center;">{% trans "Foydalanuvchilar" %}</th>
+                    <th style="text-align: center;">{% trans "Murojaatlar" %}</th>
+                    <th style="text-align: center;">{% trans "Holat" %}</th>
+                    <th style="text-align: center;">{% trans "Amallar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in departments_data %}
+                <tr>
+                    <td>
+                        <strong>{{ item.department.name }}</strong>
+                    </td>
+                    <td>
+                        <span style="color: var(--accent-primary);">📍 {{ item.department.region.name }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-primary">{{ item.users_count }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ item.tickets_count }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        {% if item.department.is_active %}
+                            <span class="badge badge-success">✓ {% trans "Faol" %}</span>
+                        {% else %}
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">✕ {% trans "Faol emas" %}</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <a href="{% url 'tickets:superadmin_department_edit' item.department.id %}" 
+                               class="btn btn-secondary btn-sm" 
+                               style="padding: 6px 12px; font-size: 13px;">
+                                ✏️ {% trans "Tahrirlash" %}
+                            </a>
+                            <!-- <a href="{% url 'tickets:superadmin_department_toggle_status' item.department.id %}" 
+                               class="btn btn-secondary btn-sm"
+                               onclick="return confirm('{% trans "Ishonchingiz komilmi?" %}')"
+                               style="padding: 6px 12px; font-size: 13px;">
+                                {% if item.department.is_active %}
+                                    🔒 {% trans "O'chirish" %}
+                                {% else %}
+                                    🔓 {% trans "Yoqish" %}
+                                {% endif %}
+                            </a> -->
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted" style="padding: 40px;">
+        <p style="font-size: 48px; margin-bottom: 15px;">🏢</p>
+        <p>{% trans "Hech qanday bo'lim topilmadi" %}</p>
+        <a href="{% url 'tickets:superadmin_department_create' %}" class="btn btn-primary" style="margin-top: 15px;">
+            ➕ {% trans "Birinchi bo'limni qo'shish" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badge-primary { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.badge-info { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.text-center {
+    text-align: center;
+}
+</style>
+{% endblock %}
