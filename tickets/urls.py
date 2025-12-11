@@ -66,4 +66,8 @@ urlpatterns = [
     path('superadmin/departments/<int:dept_id>/edit/', views_superadmin.superadmin_department_edit, name='superadmin_department_edit'),
     path('superadmin/departments/<int:dept_id>/toggle/', views_superadmin.superadmin_department_toggle_status, name='superadmin_department_toggle_status'),
     path('superadmin/departments/<int:dept_id>/delete/', views_superadmin.superadmin_department_delete, name='superadmin_department_delete'),
+
+    # Superadmin API endpoints
+    path('api/unassigned-tickets/', views_superadmin.api_unassigned_tickets, name='api_unassigned_tickets'),
+    path('api/reopened-tickets/', views_superadmin.api_reopened_tickets, name='api_reopened_tickets'),
 ]

@@ -815,10 +815,56 @@ def superadmin_department_delete(request, dept_id):
     
     return render(request, 'tickets/superadmin/department_delete_confirm.html', context)
 
+# Bu kodlarni views_superadmin.py faylining oxiriga qo'shing
 
-# tickets/urls.py ga qo'shish kerak:
-# path('superadmin/departments/', views_superadmin.superadmin_departments_list, name='superadmin_departments_list'),
-# path('superadmin/departments/create/', views_superadmin.superadmin_department_create, name='superadmin_department_create'),
-# path('superadmin/departments/<int:dept_id>/edit/', views_superadmin.superadmin_department_edit, name='superadmin_department_edit'),
-# path('superadmin/departments/<int:dept_id>/toggle/', views_superadmin.superadmin_department_toggle_status, name='superadmin_department_toggle_status'),
-# path('superadmin/departments/<int:dept_id>/delete/', views_superadmin.superadmin_department_delete, name='superadmin_department_delete'),
+@login_required
+@require_superadmin
+def api_unassigned_tickets(request):
+    """Biriktirilmagan murojaatlar (AJAX uchun)"""
+    from django.utils.timesince import timesince
+    
+    tickets = Ticket.objects.filter(
+        assigned_to__isnull=True
+    ).select_related('user', 'system', 'region').order_by('-created_at')[:20]
+    
+    data = []
+    for ticket in tickets:
+        data.append({
+            'id': ticket.id,
+            'system_name': ticket.system.name,
+            'user_name': ticket.user.get_full_name(),
+            'region_name': ticket.region.name if ticket.region else '-',
+            'created_at': timesince(ticket.created_at) + ' ' + str(_('oldin')),
+            'priority_display': ticket.get_priority_display(),
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'tickets': data
+    })
+
+
+@login_required
+@require_superadmin
+def api_reopened_tickets(request):
+    """Qayta ochilgan murojaatlar (AJAX uchun)"""
+    from django.utils.timesince import timesince
+    
+    tickets = Ticket.objects.filter(
+        status='reopened'
+    ).select_related('user', 'system', 'region').order_by('-updated_at')[:20]
+    
+    data = []
+    for ticket in tickets:
+        data.append({
+            'id': ticket.id,
+            'system_name': ticket.system.name,
+            'user_name': ticket.user.get_full_name(),
+            'region_name': ticket.region.name if ticket.region else '-',
+            'created_at': timesince(ticket.updated_at) + ' ' + str(_('oldin')),
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'tickets': data
+    })

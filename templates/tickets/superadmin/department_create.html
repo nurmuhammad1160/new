@@ -27,14 +27,14 @@
             {% csrf_token %}
             
             <div class="form-group">
-                <label class="form-label">{% trans "Viloyat" %} *</label>
+                <label class="form-label">{% trans "Hudud" %} *</label>
                 <select name="region" class="form-select" required>
-                    <option value="">{% trans "Viloyatni tanlang" %}</option>
+                    <option value="">{% trans "Hududni tanlang" %}</option>
                     {% for region in all_regions %}
                     <option value="{{ region.id }}">{{ region.name }}</option>
                     {% endfor %}
                 </select>
-                <small class="text-muted">{% trans "Bo'lim qaysi viloyatga tegishli ekanligini tanlang" %}</small>
+                <small class="text-muted">{% trans "Bo'lim qaysi hududga tegishli ekanligini tanlang" %}</small>
             </div>
 
             <div class="form-group">

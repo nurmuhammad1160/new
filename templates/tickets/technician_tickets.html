@@ -11,7 +11,7 @@
 <!-- Welcome Card -->
 <div class="welcome-card">
     <div class="welcome-content">
-        <h2>{% trans "Assalomu alaykum" %}, {{ user.get_full_name }}!</h2>
+        <h2>{% trans "Assalomu aleykum" %}, {{ user.get_full_name }}!</h2>
         <p>{% trans "Sizga biriktirilgan barcha murojaatlar ro'yxati. Muammolarni tez hal qiling!" %}</p>
     </div>
 </div>
@@ -59,38 +59,36 @@
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card" style="margin-top: 30px;">
-    <div class="card-header">
-        <h3 class="card-title">{% trans "Filtrlash" %}</h3>
-    </div>
-    <form method="get" class="filter-form">
-        <div class="filter-grid">
-            <div class="form-group">
-                <label class="form-label">{% trans "Tizim" %}</label>
+<!-- Compact Filters -->
+<div class="card compact-filter-card">
+    <form method="get" class="compact-filter-form">
+        <div class="filter-inline">
+            <div class="form-group-inline">
+                <label class="form-label-inline">🔍 {% trans "Tizim" %}</label>
                 {{ filter_form.system }}
             </div>
-            <div class="form-group">
-                <label class="form-label">{% trans "Holat" %}</label>
+            <div class="form-group-inline">
+                <label class="form-label-inline">📊 {% trans "Holat" %}</label>
                 {{ filter_form.status }}
             </div>
-            <div class="form-group">
-                <label class="form-label">{% trans "Ustuvorlik" %}</label>
+            <div class="form-group-inline">
+                <label class="form-label-inline">⚡ {% trans "Ustuvorlik" %}</label>
                 {{ filter_form.priority }}
             </div>
-            <div class="form-group" style="display: flex; align-items: flex-end;">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    {% trans "Filtrlash" %}
-                </button>
-            </div>
+            <button type="submit" class="btn-filter">
+                {% trans "Filtrlash" %}
+            </button>
+            <a href="{% url 'tickets:technician_tickets' %}" class="btn-clear">
+                ↻
+            </a>
         </div>
     </form>
 </div>
 
 <!-- Tickets Table -->
-<div class="card" style="margin-top: 30px;">
+<div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3 class="card-title">{% trans "Murojaatlar ro'yxati" %}</h3>
+        <h3 class="card-title">{% trans "Murojaatlar ro'yxati" %} ({{ tickets|length }})</h3>
     </div>
     
     {% if tickets %}
@@ -152,36 +150,37 @@
 .welcome-card {
     background: var(--bg-secondary);
     border-radius: var(--radius);
-    padding: 30px;
-    margin-bottom: 30px;
+    padding: 20px 25px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
 }
 
 .welcome-content h2 {
-    font-size: 24px;
-    margin-bottom: 8px;
+    font-size: 20px;
+    margin-bottom: 5px;
 }
 
 .welcome-content p {
     color: var(--text-secondary);
     margin: 0;
+    font-size: 13px;
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
 .stat-card {
     background: var(--bg-secondary);
     border-radius: var(--radius);
-    padding: 25px;
+    padding: 18px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
     transition: var(--transition);
@@ -193,33 +192,146 @@
 }
 
 .stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .stat-value {
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
     line-height: 1;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .stat-label {
     color: var(--text-secondary);
+    font-size: 12px;
+}
+
+/* ============================================
+   COMPACT FILTER STYLES - YANGI!
+   ============================================ */
+.compact-filter-card {
+    padding: 16px 20px;
+    margin-top: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.compact-filter-form {
+    margin: 0;
+}
+
+.filter-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.form-group-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-label-inline {
     font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    margin: 0;
 }
 
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+.form-group-inline select {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: var(--transition);
 }
 
+.form-group-inline select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-filter {
+    padding: 10px 24px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.btn-filter:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-clear {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.btn-clear:hover {
+    background: var(--border-color);
+    transform: rotate(180deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-group-inline {
+        flex-direction: column;
+        align-items: flex-start;
+        min-width: 100%;
+    }
+    
+    .form-group-inline select {
+        width: 100%;
+    }
+    
+    .btn-filter,
+    .btn-clear {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   TABLE & OTHER STYLES
+   ============================================ */
 .status-badge {
     padding: 5px 12px;
     border-radius: 12px;
@@ -274,6 +386,16 @@
 .empty-state p {
     color: var(--text-secondary);
     margin-bottom: 25px;
+}
+
+.card-header {
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
 }
 </style>
 {% endblock %}

@@ -8,20 +8,17 @@
 
 {% block content %}
 
-<!-- Filters -->
-<div class="card" style="margin-bottom: 30px;">
-    <div class="card-header">
-        <h3 class="card-title">{% trans "Filtrlash va qidiruv" %}</h3>
-    </div>
-    <form method="get" class="filter-form">
-        <div class="filter-grid">
-            <div class="form-group">
-                <label class="form-label">{% trans "Qidiruv" %}</label>
-                <input type="text" name="search" class="form-input" placeholder="{% trans 'Ism, familiya login yoki tizim...' %}" value="{{ request.GET.search }}">
+<!-- Compact Filters -->
+<div class="card compact-filter-card">
+    <form method="get" class="compact-filter-form">
+        <div class="filter-inline">
+            <div class="form-group-inline">
+                <label class="form-label-inline">🔍 {% trans "Qidiruv" %}</label>
+                <input type="text" name="search" class="form-input-inline" placeholder="{% trans 'Ism, familiya, login...' %}" value="{{ request.GET.search }}">
             </div>
-            <div class="form-group">
-                <label class="form-label">{% trans "Rol" %}</label>
-                <select name="role" class="form-select">
+            <div class="form-group-inline">
+                <label class="form-label-inline">👤 {% trans "Rol" %}</label>
+                <select name="role" class="form-select-inline">
                     <option value="">{% trans "Barcha rollar" %}</option>
                     <option value="user" {% if request.GET.role == 'user' %}selected{% endif %}>{% trans "Oddiy foydalanuvchi" %}</option>
                     <option value="technician" {% if request.GET.role == 'technician' %}selected{% endif %}>{% trans "Texnik xodim" %}</option>
@@ -29,9 +26,9 @@
                     <option value="superadmin" {% if request.GET.role == 'superadmin' %}selected{% endif %}>{% trans "Bosh admin" %}</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="form-label">{% trans "Viloyat" %}</label>
-                <select name="region" class="form-select">
+            <div class="form-group-inline">
+                <label class="form-label-inline">📍 {% trans "Viloyat" %}</label>
+                <select name="region" class="form-select-inline">
                     <option value="">{% trans "Barcha viloyatlar" %}</option>
                     {% for region in all_regions %}
                     <option value="{{ region.id }}" {% if request.GET.region == region.id|stringformat:"s" %}selected{% endif %}>
@@ -40,17 +37,18 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group" style="display: flex; align-items: flex-end;">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    🔍 {% trans "Qidiruv" %}
-                </button>
-            </div>
+            <button type="submit" class="btn-filter">
+                {% trans "Qidiruv" %}
+            </button>
+            <a href="{% url 'tickets:users_list' %}" class="btn-clear">
+                ↻
+            </a>
         </div>
     </form>
 </div>
 
 <!-- Users Table -->
-<div class="card">
+<div class="card" style="margin-top: 20px;">
     <div class="card-header">
         <h3 class="card-title">{% trans "Xodimlar" %} ({{ users.count }})</h3>
     </div>
@@ -169,10 +167,120 @@
 
 {% block extra_css %}
 <style>
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
+/* COMPACT FILTER */
+.compact-filter-card {
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.compact-filter-form {
+    margin: 0;
+}
+
+.filter-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.form-group-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-label-inline {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    margin: 0;
+}
+
+.form-input-inline,
+.form-select-inline {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.form-input-inline:focus,
+.form-select-inline:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-filter {
+    padding: 10px 24px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.btn-filter:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-clear {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.btn-clear:hover {
+    background: var(--border-color);
+    transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+    .filter-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-group-inline {
+        flex-direction: column;
+        align-items: flex-start;
+        min-width: 100%;
+    }
+    
+    .form-input-inline,
+    .form-select-inline {
+        width: 100%;
+    }
+    
+    .btn-filter,
+    .btn-clear {
+        width: 100%;
+    }
 }
 
 .table-avatar {
@@ -340,6 +448,18 @@
 .empty-state p {
     color: var(--text-secondary);
 }
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.table th,
+.table td {
+    padding: 10px 12px;
+    font-size: 13px;
+}
 </style>
 {% endblock %}
 
@@ -362,7 +482,6 @@ function closeRoleModal() {
     document.getElementById('roleModal').classList.remove('active');
 }
 
-// Close modal on outside click
 document.getElementById('roleModal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closeRoleModal();
