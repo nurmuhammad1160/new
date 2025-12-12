@@ -116,30 +116,10 @@ def create_ticket(request):
             ticket.region = request.user.region
             ticket.status = 'new'
             
-            # Mas'ul texnikni topish
-            system = ticket.system
-            region = ticket.region
-            
-            # 1. Region bo'yicha texnik
-            responsible = SystemResponsible.objects.filter(
-                system=system,
-                region=region,
-                role_in_system='technician'
-            ).first()
-            
-            # 2. Default respublikanskiy texnik
-            if not responsible:
-                responsible = SystemResponsible.objects.filter(
-                    system=system,
-                    region__isnull=True,
-                    is_default=True,
-                    role_in_system='technician'
-                ).first()
-            
-            # 3. Agar topilsa - assigned_to ga belgilash
-            if responsible:
-                ticket.assigned_to = responsible.user
-                ticket.assignment_type = 'auto'
+            # ❌ OLIB TASHLANDI: Avtomatik texnikka biriktirish
+            # ✅ YANGI: Hech kimga biriktirilmaydi - texniklar o'zlari oladi
+            ticket.assigned_to = None
+            ticket.assignment_type = ''  # Bo'sh qoldirish
             
             ticket.save()
             
@@ -151,30 +131,29 @@ def create_ticket(request):
                 message=_('Murojaat yaratildi')
             )
             
-            # ✅ TO'G'RILANGAN: Notifikatsiyalar
+            # ✅ YANGILANGAN: Notifikatsiyalar
+            # Faqat adminlarga yuboriladi, texniklarga EMAS
             recipients = []
             
-            # Respublikanskiy Admin - TO'G'RI related_name
+            # 1. Respublikanskiy Admin
             resp_admins = User.objects.filter(
-                system_responsibilities__system=ticket.system,  # ✅ TO'G'RI!
+                system_responsibilities__system=ticket.system,
                 system_responsibilities__region__isnull=True,
                 system_responsibilities__role_in_system='admin',
                 is_active=True
             )
             recipients.extend(resp_admins)
             
-            # Viloyat Admin - TO'G'RI related_name
+            # 2. Viloyat Admin
             region_admins = User.objects.filter(
-                system_responsibilities__system=ticket.system,  # ✅ TO'G'RI!
+                system_responsibilities__system=ticket.system,
                 system_responsibilities__region=ticket.region,
                 system_responsibilities__role_in_system='admin',
                 is_active=True
             )
             recipients.extend(region_admins)
             
-            # Avtomatik biriktirilgan texnikga
-            if ticket.assigned_to:
-                recipients.append(ticket.assigned_to)
+            # ❌ OLIB TASHLANDI: Default texnikka notifikatsiya
             
             # Notifikatsiya yuborish
             for recipient in recipients:
