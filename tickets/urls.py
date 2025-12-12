@@ -22,6 +22,8 @@ urlpatterns = [
     # ============================================
     path('technician/', views.technician_tickets, name='technician_tickets'),
     path('<int:pk>/change-status/', views.change_ticket_status, name='change_ticket_status'),
+    path('<int:pk>/take/', views.take_ticket, name='take_ticket'),
+    path('new/', views.new_tickets_list, name='new_tickets_list'),
     
     # ============================================
     # ADMIN VIEWS

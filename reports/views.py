@@ -1,7 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
-# reports/views.py
+# reports/views.py - TO'G'RILANGAN
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -47,8 +44,8 @@ def reports_dashboard(request):
     if not date_to:
         date_to = timezone.now().strftime('%Y-%m-%d')
     
-    # Tezkor statistika
-    quick_stats = get_quick_stats(date_from, date_to)
+    # ✅ YANGILANGAN: Tezkor statistika
+    quick_stats = get_quick_stats(date_from, date_to, request.user)
     
     context = {
         'form': form,
@@ -79,6 +76,10 @@ def generate_report(request):
     
     # Ticketlarni olish
     tickets = Ticket.objects.all()
+    
+    # ✅ YANGI: Admin ruxsatlariga qarab filtrlash
+    from accounts.utils import filter_tickets_for_admin
+    tickets = filter_tickets_for_admin(tickets, request.user)
     
     # Filtrlash
     if filters['date_from']:
@@ -169,21 +170,48 @@ def get_filters_from_form(form):
     }
 
 
-def get_quick_stats(date_from, date_to):
-    """Tezkor statistika"""
-    tickets = Ticket.objects.filter(
+# reports/views.py - get_quick_stats TO'G'RILASH
+
+def get_quick_stats(date_from, date_to, user):
+    """Tezkor statistika - TO'G'RILANGAN"""
+    
+    # Barcha ticketlar (sana filtri bilan)
+    all_tickets = Ticket.objects.filter(
         created_at__date__gte=date_from,
         created_at__date__lte=date_to
     )
     
+    # ✅ YANGI: Biriktirilmagan - ADMIN FILTRSIZ!
+    # Sabab: Biriktirilmagan murojaatlar hali hech qaysi adminga tegishli emas
+    unassigned_tickets = all_tickets.filter(
+        assigned_to__isnull=True, 
+        status='new'
+    )
+    
+    # ✅ Agar admin bo'lsa - faqat o'z tizim/viloyati bo'yicha biriktirilmaganlarni ko'rsatish
+    from accounts.utils import get_admin_systems, get_admin_regions
+    
+    if user.is_admin() and not user.is_superadmin():
+        # Tizimlar bo'yicha filtrlash
+        allowed_systems = get_admin_systems(user)
+        if allowed_systems is not None:
+            unassigned_tickets = unassigned_tickets.filter(system__in=allowed_systems)
+        
+        # Viloyatlar bo'yicha filtrlash
+        allowed_regions = get_admin_regions(user)
+        if allowed_regions is not None and allowed_regions != []:
+            unassigned_tickets = unassigned_tickets.filter(region_id__in=allowed_regions)
+    
+    # Boshqa statistikalar - admin ruxsatlariga qarab
+    from accounts.utils import filter_tickets_for_admin
+    filtered_tickets = filter_tickets_for_admin(all_tickets, user)
+    
     return {
-        'total': tickets.count(),
-        'new': tickets.filter(status='new').count(),
-        'in_progress': tickets.filter(status='in_progress').count(),
-        'resolved': tickets.filter(status='resolved').count(),
-        'rejected': tickets.filter(status='rejected').count(),
-        'reopened': tickets.filter(status='reopened').count(),
-        'avg_rating': tickets.filter(rating__isnull=False).aggregate(
+        'total': filtered_tickets.count(),
+        'unassigned': unassigned_tickets.count(),  # ✅ Alohida filtrlangan
+        'in_progress': filtered_tickets.filter(status='in_progress').count(),
+        'resolved': filtered_tickets.filter(status='resolved').count(),
+        'avg_rating': filtered_tickets.filter(rating__isnull=False).aggregate(
             Avg('rating')
         )['rating__avg'] or 0,
     }

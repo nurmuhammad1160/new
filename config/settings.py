@@ -58,6 +58,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',  # ✅ i18n context
+                'accounts.context_processors.new_tickets_count',
             ],
         },
     },

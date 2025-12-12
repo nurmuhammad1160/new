@@ -15,13 +15,22 @@
     </button>
 </div>
 
-<!-- Quick Stats -->
+<!-- Quick Stats - 5 cards -->
 <div class="quick-stats-grid">
     <div class="stat-card stat-primary">
         <div class="stat-icon">📊</div>
         <div class="stat-content">
             <div class="stat-value">{{ quick_stats.total }}</div>
             <div class="stat-label">{% trans "Jami murojaatlar" %}</div>
+        </div>
+    </div>
+    
+    <!-- ✅ YANGI: Biriktirilmagan murojaatlar -->
+    <div class="stat-card stat-warning">
+        <div class="stat-icon">🆕</div>
+        <div class="stat-content">
+            <div class="stat-value">{{ quick_stats.unassigned }}</div>
+            <div class="stat-label">{% trans "Biriktirilmagan" %}</div>
         </div>
     </div>
     
@@ -41,7 +50,7 @@
         </div>
     </div>
     
-    <div class="stat-card stat-warning">
+    <div class="stat-card stat-rating">
         <div class="stat-icon">⭐</div>
         <div class="stat-content">
             <div class="stat-value">{{ quick_stats.avg_rating|floatformat:1 }}</div>
@@ -208,7 +217,7 @@
    BACK BUTTON
    ============================================ */
 .page-header-with-back {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 .btn-back {
@@ -229,20 +238,20 @@
 }
 
 /* ============================================
-   QUICK STATS
+   QUICK STATS - 5 CARDS
    ============================================ */
 .quick-stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
     margin-bottom: 30px;
 }
 
 .stat-card {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     align-items: center;
-    padding: 25px;
+    padding: 20px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -255,27 +264,32 @@
 }
 
 .stat-icon {
-    font-size: 48px;
+    font-size: 40px;
     line-height: 1;
+}
+
+.stat-content {
+    flex: 1;
 }
 
 .stat-value {
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 800;
     line-height: 1;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .stat-label {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .stat-primary .stat-value { color: #3b82f6; }
+.stat-warning .stat-value { color: #f59e0b; }
 .stat-info .stat-value { color: #06b6d4; }
 .stat-success .stat-value { color: #10b981; }
-.stat-warning .stat-value { color: #f59e0b; }
+.stat-rating .stat-value { color: #fbbf24; }
 
 /* ============================================
    REPORT GENERATOR CARD
@@ -491,11 +505,24 @@ select:focus {
 /* ============================================
    RESPONSIVE
    ============================================ */
+@media (max-width: 1400px) {
+    .quick-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .stat-card:nth-child(4),
+    .stat-card:nth-child(5) {
+        grid-column: span 1;
+    }
+}
+
 @media (max-width: 1200px) {
     .filter-grid {
         grid-template-columns: 1fr;
     }
-    
+}
+
+@media (max-width: 900px) {
     .quick-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }

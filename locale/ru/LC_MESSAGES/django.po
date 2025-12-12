@@ -1289,3 +1289,42 @@ msgstr "Приложения в системах"
 msgid "Qaysi tizimga ko'proq murojaat kelayotgani"
 msgstr "Какая система получает наибольшее количество запросов"
 
+msgid "Yangi murojaatlar"
+msgstr "Новые приложения"
+
+msgid "Sizga biriktirilgan va yangi murojaatlar ro'yxati. Muammolarni tez hal qiling!"
+msgstr "Список ваших назначенных и новых запросов. Решайте проблемы быстро!"
+
+msgid "Siz default (respublika miqyosidagi) texniksiz"
+msgstr "Вы являетесь стандартным (общереспубликанским) техником."
+
+msgid "Barcha viloyatlar bo'yicha hali hech kim qabul qilmagan murojaatlarni ko'rishingiz va olishingiz mumkin"
+msgstr "Вы можете просматривать и получать заявки, которые еще никто не принял, для всех регионов."
+
+msgid "Jami yangi murojaatlar"
+msgstr "Всего новых заявок"
+
+msgid "Bugun kelgan"
+msgstr "Это пришло сегодня"
+
+msgid "Oddiy ustuvorlik"
+msgstr "Обычный приоритет"
+
+msgid "O'rtacha ustuvorlik"
+msgstr "Средний приоритет"
+
+msgid "Yangi murojaatlar ro'yxati"
+msgstr "Список новых приложений"
+
+
+msgid "Qabul qilish"
+msgstr "Принятие"
+
+msgid "Sizning viloyatingiz"
+msgstr "Ваша провинция"
+
+msgid "bo'yicha hali hech kim qabul qilmagan murojaatlar"
+msgstr "заявки, которые еще никто не принял"
+
+msgid "Texnik Panel"
+msgstr "Техническая группа"

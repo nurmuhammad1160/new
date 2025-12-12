@@ -85,6 +85,17 @@ class Ticket(models.Model):
         blank=True,
         verbose_name=_("Baholash izohi")
     )
+    assignment_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('auto', _('Avtomatik')),      # Sistem biriktirdi
+            ('self', _("O'zi oldi")),      # Texnik o'zi oldi
+            ('admin', _('Admin biriktirdi')) # Admin biriktirdi
+        ],
+        default='auto',
+        verbose_name=_("Biriktirilish turi"),
+        blank=True
+    )
     
     # Vaqt ma'lumotlari
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Yaratilgan"))

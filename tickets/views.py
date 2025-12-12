@@ -98,6 +98,8 @@ def dashboard(request):
     return render(request, 'tickets/dashboard.html', context)
 
 
+# tickets/views.py - create_ticket TO'G'RILASH
+
 @login_required
 def create_ticket(request):
     """Yangi murojaat yaratish"""
@@ -107,9 +109,8 @@ def create_ticket(request):
             ticket = form.save(commit=False)
             ticket.user = request.user
             
-            # Region tekshirish
             if not request.user.region:
-                messages.error(request, _('Profilingizda viloyat belgilanmagan. Iltimos profilni to\'ldiring.'))
+                messages.error(request, _('Profilingizda viloyat belgilanmagan.'))
                 return redirect('accounts:profile')
             
             ticket.region = request.user.region
@@ -119,14 +120,14 @@ def create_ticket(request):
             system = ticket.system
             region = ticket.region
             
-            # 1. Avval region bo'yicha mas'ul texnikni qidirish
+            # 1. Region bo'yicha texnik
             responsible = SystemResponsible.objects.filter(
                 system=system,
                 region=region,
                 role_in_system='technician'
             ).first()
             
-            # 2. Topilmasa - respublika miqyosidagi default mas'ulni olish
+            # 2. Default respublikanskiy texnik
             if not responsible:
                 responsible = SystemResponsible.objects.filter(
                     system=system,
@@ -138,6 +139,7 @@ def create_ticket(request):
             # 3. Agar topilsa - assigned_to ga belgilash
             if responsible:
                 ticket.assigned_to = responsible.user
+                ticket.assignment_type = 'auto'
             
             ticket.save()
             
@@ -149,13 +151,41 @@ def create_ticket(request):
                 message=_('Murojaat yaratildi')
             )
             
-            # Notification (mas'ul xodimga)
+            # ✅ TO'G'RILANGAN: Notifikatsiyalar
+            recipients = []
+            
+            # Respublikanskiy Admin - TO'G'RI related_name
+            resp_admins = User.objects.filter(
+                system_responsibilities__system=ticket.system,  # ✅ TO'G'RI!
+                system_responsibilities__region__isnull=True,
+                system_responsibilities__role_in_system='admin',
+                is_active=True
+            )
+            recipients.extend(resp_admins)
+            
+            # Viloyat Admin - TO'G'RI related_name
+            region_admins = User.objects.filter(
+                system_responsibilities__system=ticket.system,  # ✅ TO'G'RI!
+                system_responsibilities__region=ticket.region,
+                system_responsibilities__role_in_system='admin',
+                is_active=True
+            )
+            recipients.extend(region_admins)
+            
+            # Avtomatik biriktirilgan texnikga
             if ticket.assigned_to:
+                recipients.append(ticket.assigned_to)
+            
+            # Notifikatsiya yuborish
+            for recipient in recipients:
                 Notification.objects.create(
-                    user=ticket.assigned_to,
+                    user=recipient,
                     notification_type='new_ticket',
                     title=_('Yangi murojaat'),
-                    text=_('Sizga yangi murojaat biriktirildi: {}').format(ticket.get_ticket_number()),
+                    text=_('Yangi murojaat #{}: {}').format(
+                        ticket.get_ticket_number(), 
+                        ticket.system.name
+                    ),
                     url=f'/tickets/{ticket.id}/'
                 )
             
@@ -165,6 +195,7 @@ def create_ticket(request):
         form = TicketCreateForm()
     
     return render(request, 'tickets/create_ticket.html', {'form': form})
+
 
 @login_required
 def ticket_detail(request, pk):
@@ -323,9 +354,12 @@ def send_message(request, pk):
     
     return redirect('tickets:ticket_detail', pk=pk)
 
+
+# tickets/views.py - rate_ticket TO'G'RILASH
+
 @login_required
 def rate_ticket(request, pk):
-    """Murojaatni baholash - HAR QANDAY BAHO = HAL QILINDI"""
+    """Murojaatni baholash"""
     ticket = get_object_or_404(Ticket, pk=pk, user=request.user)
     
     if ticket.status != 'pending_approval':
@@ -338,7 +372,6 @@ def rate_ticket(request, pk):
             ticket = form.save(commit=False)
             rating = ticket.rating
             
-            # ✅ YANGI LOGIKA: Har qanday baho = HAL QILINDI
             ticket.status = 'resolved'
             ticket.resolved_at = timezone.now()
             ticket.save()
@@ -353,7 +386,51 @@ def rate_ticket(request, pk):
                 message=_('Foydalanuvchi {}⭐ baho berdi. Murojaat hal qilindi.').format(rating)
             )
             
-            # ✅ Message (har doim hal qilindi)
+            # ✅ TO'G'RILANGAN: Notifikatsiya
+            recipients = []
+            
+            # 1. Texnikka
+            if ticket.assigned_to:
+                recipients.append(ticket.assigned_to)
+            
+            # 2. Viloyat Admin - TO'G'RI related_name
+            region_admins = User.objects.filter(
+                system_responsibilities__system=ticket.system,  # ✅ TO'G'RI!
+                system_responsibilities__region=ticket.region,
+                system_responsibilities__role_in_system='admin',
+                is_active=True
+            )
+            recipients.extend(region_admins)
+            
+            # 3. Respublikanskiy Admin - TO'G'RI related_name
+            resp_admins = User.objects.filter(
+                system_responsibilities__system=ticket.system,  # ✅ TO'G'RI!
+                system_responsibilities__region__isnull=True,
+                system_responsibilities__role_in_system='admin',
+                is_active=True
+            )
+            recipients.extend(resp_admins)
+            
+            # Notifikatsiya yuborish
+            for recipient in recipients:
+                if rating >= 4:
+                    notif_text = _('Murojaat {} {}⭐ bilan baholandi (Yaxshi!)').format(
+                        ticket.get_ticket_number(), rating
+                    )
+                else:
+                    notif_text = _('Murojaat {} {}⭐ bilan baholandi (Past baho)').format(
+                        ticket.get_ticket_number(), rating
+                    )
+                
+                Notification.objects.create(
+                    user=recipient,
+                    notification_type='ticket_rated',
+                    title=_('Murojaat baholandi'),
+                    text=notif_text,
+                    url=f'/tickets/{ticket.id}/'
+                )
+            
+            # Message
             if rating >= 4:
                 messages.success(request, _('Baholash uchun rahmat! Murojaat hal qilindi.'))
             else:
@@ -495,42 +572,215 @@ def system_responsibles_modal_view(request, system_id):
 # TECHNICIAN VIEWS
 # ============================================
 
+# tickets/views.py - technician_tickets YANGILASH
+
+# tickets/views.py - technician_tickets YANGILASH
+
+# tickets/views.py - technician_tickets TO'G'RILASH
+
 @login_required
 @require_technician
 def technician_tickets(request):
-    """Texnik xodim - o'ziga biriktirilgan ticketlar"""
-    tickets = Ticket.objects.filter(assigned_to=request.user)
+    """Texnik xodim - o'ziga biriktirilgan VA yangi ticketlar"""
+    
+    # Yangi murojaatlar
+    new_tickets_query = Ticket.objects.filter(
+        assigned_to__isnull=True,
+        status='new'
+    )
+    
+    # Texnik mas'ul bo'lgan tizimlar
+    responsible_systems = SystemResponsible.objects.filter(
+        user=request.user,
+        role_in_system='technician'
+    ).values_list('system_id', flat=True)
+    
+    new_tickets_query = new_tickets_query.filter(system_id__in=responsible_systems)
+    
+    # ✅ YANGI LOGIKA: Default texnik/admin ekanligini tekshirish
+    is_default_tech = SystemResponsible.objects.filter(
+        user=request.user,
+        role_in_system='technician',
+        is_default=True
+    ).exists()
+    
+    # Agar default texnik EMAS va viloyat texniki bo'lsa - faqat o'z viloyati
+    if not is_default_tech and request.user.region:
+        new_tickets_query = new_tickets_query.filter(region=request.user.region)
+    # Agar default texnik bo'lsa - barcha viloyatlar (filter yo'q)
+    
+    new_tickets = new_tickets_query.order_by('-created_at')[:20]
+    
+    # Mening murojaatlarim
+    my_tickets = Ticket.objects.filter(assigned_to=request.user)
     
     # Statistika
     stats = {
-        'new': tickets.filter(status='new').count(),
-        'in_progress': tickets.filter(status='in_progress').count(),
-        'pending': tickets.filter(status='pending_approval').count(),
-        'resolved_today': tickets.filter(
+        'new': my_tickets.filter(status='new').count(),
+        'in_progress': my_tickets.filter(status='in_progress').count(),
+        'pending': my_tickets.filter(status='pending_approval').count(),
+        'resolved_today': my_tickets.filter(
             status='resolved',
             resolved_at__date=timezone.now().date()
         ).count(),
+        'new_available': new_tickets.count(),
     }
     
     # Filter
     filter_form = TicketFilterForm(request.GET)
     if filter_form.is_valid():
         if filter_form.cleaned_data.get('status'):
-            tickets = tickets.filter(status=filter_form.cleaned_data['status'])
+            my_tickets = my_tickets.filter(status=filter_form.cleaned_data['status'])
         if filter_form.cleaned_data.get('priority'):
-            tickets = tickets.filter(priority=filter_form.cleaned_data['priority'])
+            my_tickets = my_tickets.filter(priority=filter_form.cleaned_data['priority'])
         if filter_form.cleaned_data.get('system'):
-            tickets = tickets.filter(system=filter_form.cleaned_data['system'])
+            my_tickets = my_tickets.filter(system=filter_form.cleaned_data['system'])
     
-    tickets = tickets.order_by('-created_at')[:50]
+    my_tickets = my_tickets.order_by('-created_at')[:50]
     
     context = {
         'stats': stats,
-        'tickets': tickets,
+        'new_tickets': new_tickets,
+        'my_tickets': my_tickets,
         'filter_form': filter_form,
     }
     
     return render(request, 'tickets/technician_tickets.html', context)
+
+
+
+# tickets/views.py - YANGI VIEW QO'SHISH
+
+@login_required
+@require_technician
+def take_ticket(request, pk):
+    """Texnik murojaatni o'zi oladi"""
+    
+    ticket = get_object_or_404(Ticket, pk=pk)
+    
+    # Tekshirish: hali hech kimga berilmaganmi?
+    if ticket.assigned_to is not None:
+        messages.error(request, _('Bu murojaat allaqachon biriktirilgan.'))
+        return redirect('tickets:technician_tickets')
+    
+    # Tekshirish: texnik shu tizimga mas'ulmi?
+    from systems.models import SystemResponsible
+    is_responsible = SystemResponsible.objects.filter(
+        user=request.user,
+        system=ticket.system,
+        role_in_system='technician'
+    ).exists()
+    
+    if not is_responsible:
+        messages.error(request, _('Sizda bu tizim bo\'yicha murojaat olish huquqi yo\'q.'))
+        return redirect('tickets:technician_tickets')
+    
+    # Agar viloyat texniki bo'lsa - faqat o'z viloyatini
+    if request.user.region and ticket.region != request.user.region:
+        messages.error(request, _('Bu murojaat boshqa viloyatga tegishli.'))
+        return redirect('tickets:technician_tickets')
+    
+    # ✅ Biriktirish
+    ticket.assigned_to = request.user
+    ticket.status = 'in_progress'
+    ticket.assignment_type = 'self'  # ✅ Texnik o'zi oldi
+    ticket.save()
+    
+    # Audit log
+    TicketHistory.objects.create(
+        ticket=ticket,
+        changed_by=request.user,
+        action_type='assigned',
+        new_value=request.user.get_full_name(),
+        message=_("{} murojaatni o'zi qabul qildi").format(request.user.get_full_name())
+    )
+    
+    # Notifikatsiya (foydalanuvchiga)
+    Notification.objects.create(
+        user=ticket.user,
+        notification_type='ticket_assigned',
+        title=_('Murojaatingiz qabul qilindi'),
+        text=_('Murojaat {} texnik tomonidan qabul qilindi: {}').format(
+            ticket.get_ticket_number(),
+            request.user.get_full_name()
+        ),
+        url=f'/tickets/{ticket.id}/'
+    )
+    
+    messages.success(request, _('Murojaat muvaffaqiyatli qabul qilindi!'))
+    return redirect('tickets:ticket_detail', pk=pk)
+
+# tickets/views.py - YANGI VIEW QO'SHISH
+
+# tickets/views.py - new_tickets_list TO'G'RILASH
+
+@login_required
+@require_technician
+def new_tickets_list(request):
+    """Yangi murojaatlar - alohida sahifa"""
+    
+    # Yangi murojaatlar
+    new_tickets_query = Ticket.objects.filter(
+        assigned_to__isnull=True,
+        status='new'
+    )
+    
+    # Texnik mas'ul bo'lgan tizimlar
+    responsible_systems = SystemResponsible.objects.filter(
+        user=request.user,
+        role_in_system='technician'
+    ).values_list('system_id', flat=True)
+    
+    new_tickets_query = new_tickets_query.filter(system_id__in=responsible_systems)
+    
+    # ✅ YANGI LOGIKA: Default texnik/admin ekanligini tekshirish
+    is_default_tech = SystemResponsible.objects.filter(
+        user=request.user,
+        role_in_system='technician',
+        is_default=True
+    ).exists()
+    
+    # Agar default texnik EMAS va viloyat texniki bo'lsa - faqat o'z viloyati
+    if not is_default_tech and request.user.region:
+        new_tickets_query = new_tickets_query.filter(region=request.user.region)
+    # Agar default texnik bo'lsa - barcha viloyatlar (filter yo'q)
+    
+    # FILTRLASH
+    filter_form = TicketFilterForm(request.GET)
+    
+    if filter_form.is_valid():
+        if filter_form.cleaned_data.get('system'):
+            new_tickets_query = new_tickets_query.filter(system=filter_form.cleaned_data['system'])
+        
+        if filter_form.cleaned_data.get('priority'):
+            new_tickets_query = new_tickets_query.filter(priority=filter_form.cleaned_data['priority'])
+        
+        if filter_form.cleaned_data.get('date_from'):
+            new_tickets_query = new_tickets_query.filter(created_at__date__gte=filter_form.cleaned_data['date_from'])
+        
+        if filter_form.cleaned_data.get('date_to'):
+            new_tickets_query = new_tickets_query.filter(created_at__date__lte=filter_form.cleaned_data['date_to'])
+    
+    new_tickets = new_tickets_query.order_by('-created_at')
+    
+    # Statistika
+    stats = {
+        'total': new_tickets.count(),
+        'today': new_tickets.filter(created_at__date=timezone.now().date()).count(),
+        'low': new_tickets.filter(priority='low').count(),
+        'medium': new_tickets.filter(priority='medium').count(),
+        'high': new_tickets.filter(priority='high').count(),
+    }
+    
+    # ✅ YANGI: Default texnik ekanligini templatega yuborish
+    context = {
+        'new_tickets': new_tickets,
+        'stats': stats,
+        'filter_form': filter_form,
+        'is_default_tech': is_default_tech,  # ✅ YANGI
+    }
+    
+    return render(request, 'tickets/new_tickets_list.html', context)
 
 
 @login_required

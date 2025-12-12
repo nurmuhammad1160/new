@@ -88,6 +88,11 @@
                         <span class="icon">📋</span>
                         <span>{% trans "Mening murojaatlarim" %}</span>
                     </a>
+                    <a href="{% url 'tickets:new_tickets_list' %}" class="nav-item">
+                        <span class="icon">🆕</span>
+                        <span>{% trans "Yangi murojaatlar" %}</span>
+                       
+                    </a>
                 
                 <!-- USER MENU -->
                 {% else %}
