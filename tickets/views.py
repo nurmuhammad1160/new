@@ -628,12 +628,12 @@ def technician_tickets(request):
 
 
 
-# tickets/views.py - YANGI VIEW QO'SHISH
+# tickets/views.py - take_ticket TO'G'RILASH
 
 @login_required
 @require_technician
 def take_ticket(request, pk):
-    """Texnik murojaatni o'zi oladi"""
+    """Texnik murojaatni o'zi oladi - TO'G'RILANGAN"""
     
     ticket = get_object_or_404(Ticket, pk=pk)
     
@@ -644,25 +644,35 @@ def take_ticket(request, pk):
     
     # Tekshirish: texnik shu tizimga mas'ulmi?
     from systems.models import SystemResponsible
-    is_responsible = SystemResponsible.objects.filter(
+    
+    responsibilities = SystemResponsible.objects.filter(
         user=request.user,
         system=ticket.system,
         role_in_system='technician'
-    ).exists()
+    )
     
-    if not is_responsible:
-        messages.error(request, _('Sizda bu tizim bo\'yicha murojaat olish huquqi yo\'q.'))
+    if not responsibilities.exists():
+        messages.error(request, _('Sizda bu tizim bo\'yicha murojat olish huquqi yo\'q.'))
         return redirect('tickets:technician_tickets')
     
-    # Agar viloyat texniki bo'lsa - faqat o'z viloyatini
-    if request.user.region and ticket.region != request.user.region:
-        messages.error(request, _('Bu murojaat boshqa viloyatga tegishli.'))
-        return redirect('tickets:technician_tickets')
+    # ✅ YANGI: Default texnik ekanligini tekshirish
+    is_default_tech = responsibilities.filter(is_default=True).exists()
+    
+    # ✅ Agar default texnik EMAS va viloyat mos kelmasa - xato
+    if not is_default_tech and request.user.region and ticket.region != request.user.region:
+        messages.error(
+            request, 
+            _('Bu murojaat {} viloyatiga tegishli. Siz faqat {} viloyati murojaatlarini qabul qilishingiz mumkin.').format(
+                ticket.region.name,
+                request.user.region.name
+            )
+        )
+        return redirect('tickets:new_tickets_list')
     
     # ✅ Biriktirish
     ticket.assigned_to = request.user
     ticket.status = 'in_progress'
-    ticket.assignment_type = 'self'  # ✅ Texnik o'zi oldi
+    ticket.assignment_type = 'self'
     ticket.save()
     
     # Audit log
