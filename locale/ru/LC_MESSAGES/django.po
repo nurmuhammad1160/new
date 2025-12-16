@@ -1328,3 +1328,10 @@ msgstr "заявки, которые еще никто не принял"
 
 msgid "Texnik Panel"
 msgstr "Техническая группа"
+
+
+msgid "Siz quyidagi viloyatlar bo'yicha mas'ulsiz"
+msgstr "Вы отвечаете за следующие регионы"
+
+msgid "Faqat shu viloyatlarning hali hech kim qabul qilmagan murojaatlarini ko'rasiz"
+msgstr "Вы увидите только заявки из этих регионов, которые еще никто не принял."

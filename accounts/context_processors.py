@@ -4,7 +4,7 @@ from tickets.models import Ticket
 from systems.models import SystemResponsible
 
 def new_tickets_count(request):
-    """Texnik uchun yangi murojaatlar sonini qaytarish"""
+    """Texnik uchun yangi murojaatlar sonini qaytarish - TO'G'RILANGAN"""
     
     if not request.user.is_authenticated:
         return {'new_tickets_count': 0}
@@ -33,10 +33,18 @@ def new_tickets_count(request):
         is_default=True
     ).exists()
     
-    # Agar default texnik EMAS va viloyat texniki bo'lsa - faqat o'z viloyati
-    if not is_default_tech and request.user.region:
-        new_tickets_query = new_tickets_query.filter(region=request.user.region)
-    # Agar default texnik bo'lsa - barcha viloyatlar
+    # ✅ YANGI: Mas'ul bo'lgan viloyatlarni tekshirish
+    if not is_default_tech:
+        responsibilities = SystemResponsible.objects.filter(
+            user=request.user,
+            role_in_system='technician',
+            region__isnull=False
+        )
+        
+        responsible_region_ids = list(responsibilities.values_list('region_id', flat=True).distinct())
+        
+        if responsible_region_ids:
+            new_tickets_query = new_tickets_query.filter(region_id__in=responsible_region_ids)
     
     count = new_tickets_query.count()
     

@@ -551,16 +551,15 @@ def system_responsibles_modal_view(request, system_id):
 # TECHNICIAN VIEWS
 # ============================================
 
-# tickets/views.py - technician_tickets YANGILASH
-
-# tickets/views.py - technician_tickets YANGILASH
 
 # tickets/views.py - technician_tickets TO'G'RILASH
 
 @login_required
 @require_technician
 def technician_tickets(request):
-    """Texnik xodim - o'ziga biriktirilgan VA yangi ticketlar"""
+    """Texnik xodim - o'ziga biriktirilgan VA yangi ticketlar - TO'G'RILANGAN"""
+    
+    from systems.models import SystemResponsible
     
     # Yangi murojaatlar
     new_tickets_query = Ticket.objects.filter(
@@ -576,17 +575,27 @@ def technician_tickets(request):
     
     new_tickets_query = new_tickets_query.filter(system_id__in=responsible_systems)
     
-    # ✅ YANGI LOGIKA: Default texnik/admin ekanligini tekshirish
+    # ✅ YANGI: Default texnik ekanligini tekshirish
     is_default_tech = SystemResponsible.objects.filter(
         user=request.user,
         role_in_system='technician',
         is_default=True
     ).exists()
     
-    # Agar default texnik EMAS va viloyat texniki bo'lsa - faqat o'z viloyati
-    if not is_default_tech and request.user.region:
-        new_tickets_query = new_tickets_query.filter(region=request.user.region)
-    # Agar default texnik bo'lsa - barcha viloyatlar (filter yo'q)
+    # ✅ YANGI: Mas'ul bo'lgan viloyatlarni olish
+    if not is_default_tech:
+        responsibilities = SystemResponsible.objects.filter(
+            user=request.user,
+            role_in_system='technician',
+            region__isnull=False
+        )
+        
+        responsible_region_ids = list(responsibilities.values_list('region_id', flat=True).distinct())
+        
+        # Agar viloyatlar topilsa - faqat o'sha viloyatlar
+        if responsible_region_ids:
+            new_tickets_query = new_tickets_query.filter(region_id__in=responsible_region_ids)
+    # Agar default texnik bo'lsa - barcha viloyatlar
     
     new_tickets = new_tickets_query.order_by('-created_at')[:20]
     
@@ -699,14 +708,14 @@ def take_ticket(request, pk):
     messages.success(request, _('Murojaat muvaffaqiyatli qabul qilindi!'))
     return redirect('tickets:ticket_detail', pk=pk)
 
-# tickets/views.py - YANGI VIEW QO'SHISH
-
 # tickets/views.py - new_tickets_list TO'G'RILASH
 
 @login_required
 @require_technician
 def new_tickets_list(request):
-    """Yangi murojaatlar - alohida sahifa"""
+    """Yangi murojaatlar - alohida sahifa - TO'G'RILANGAN"""
+    
+    from systems.models import SystemResponsible
     
     # Yangi murojaatlar
     new_tickets_query = Ticket.objects.filter(
@@ -714,7 +723,7 @@ def new_tickets_list(request):
         status='new'
     )
     
-    # Texnik mas'ul bo'lgan tizimlar
+    # ✅ Texnik mas'ul bo'lgan tizimlar
     responsible_systems = SystemResponsible.objects.filter(
         user=request.user,
         role_in_system='technician'
@@ -722,16 +731,31 @@ def new_tickets_list(request):
     
     new_tickets_query = new_tickets_query.filter(system_id__in=responsible_systems)
     
-    # ✅ YANGI LOGIKA: Default texnik/admin ekanligini tekshirish
+    # ✅ YANGI: Default texnik ekanligini tekshirish
     is_default_tech = SystemResponsible.objects.filter(
         user=request.user,
         role_in_system='technician',
         is_default=True
     ).exists()
     
-    # Agar default texnik EMAS va viloyat texniki bo'lsa - faqat o'z viloyati
-    if not is_default_tech and request.user.region:
-        new_tickets_query = new_tickets_query.filter(region=request.user.region)
+    # ✅ YANGI: Mas'ul bo'lgan viloyatlarni olish
+    responsible_region_ids = []
+    responsible_regions = []
+    
+    if not is_default_tech:
+        # Default texnik bo'lmasa - mas'ul viloyatlarni olish
+        responsibilities = SystemResponsible.objects.filter(
+            user=request.user,
+            role_in_system='technician',
+            region__isnull=False
+        ).select_related('region')
+        
+        responsible_region_ids = list(responsibilities.values_list('region_id', flat=True).distinct())
+        responsible_regions = [resp.region for resp in responsibilities if resp.region]
+        
+        # Agar viloyatlar topilsa - faqat o'sha viloyatlar
+        if responsible_region_ids:
+            new_tickets_query = new_tickets_query.filter(region_id__in=responsible_region_ids)
     # Agar default texnik bo'lsa - barcha viloyatlar (filter yo'q)
     
     # FILTRLASH
@@ -761,12 +785,12 @@ def new_tickets_list(request):
         'high': new_tickets.filter(priority='high').count(),
     }
     
-    # ✅ YANGI: Default texnik ekanligini templatega yuborish
     context = {
         'new_tickets': new_tickets,
         'stats': stats,
         'filter_form': filter_form,
-        'is_default_tech': is_default_tech,  # ✅ YANGI
+        'is_default_tech': is_default_tech,
+        'responsible_regions': responsible_regions,  # ✅ YANGI!
     }
     
     return render(request, 'tickets/new_tickets_list.html', context)

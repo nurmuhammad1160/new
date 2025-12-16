@@ -18,8 +18,15 @@
                     ⭐ {% trans "Siz default (respublika miqyosidagi) texniksiz" %}
                 </span><br>
                 {% trans "Barcha viloyatlar bo'yicha hali hech kim qabul qilmagan murojaatlarni ko'rishingiz va olishingiz mumkin" %}
-            {% elif user.region %}
-                {% trans "Sizning viloyatingiz" %} ({{ user.region.name }}) {% trans "bo'yicha hali hech kim qabul qilmagan murojaatlar" %}
+            {% elif responsible_regions %}
+                <!-- ✅ YANGI: Mas'ul bo'lgan viloyatlar ro'yxati -->
+                {% trans "Siz quyidagi viloyatlar bo'yicha mas'ulsiz" %}:
+                <strong>
+                {% for region in responsible_regions %}
+                    {{ region.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                </strong><br>
+                {% trans "Faqat shu viloyatlarning hali hech kim qabul qilmagan murojaatlarini ko'rasiz" %}
             {% else %}
                 {% trans "Hali hech kim qabul qilmagan murojaatlar" %}
             {% endif %}
